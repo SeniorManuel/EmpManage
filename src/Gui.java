@@ -3,34 +3,39 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class Gui extends JFrame {
-    JLabel flabel;
-    JLabel llable;
-    JTextField ftext;
-    JTextField ltext;
-    JButton submit;
+    JLabel fname, lname, pos, mrate, dwork;
+    JTextField tfname, tlname, tpos, tmrate, tdwork;
+    JButton add, update, delete;
     DefaultTableModel dtable;
     JTable table;
     GridBagLayout layout;
     Container container;
 
     public Gui() {
-        flabel = new JLabel("FirstName: ");
-        llable = new JLabel("LastName: ");
-        ftext = new JTextField(8);
-        ltext = new JTextField(8);
-        submit = new JButton("Submit");
-        dtable = new DefaultTableModel(new Object[]{"Firstname", "Lastname"}, 0);
+        fname = new JLabel("Firstname: ");
+        lname = new JLabel("Lastname: ");
+        pos = new JLabel("Position: ");
+        mrate = new JLabel("Monthly Rate: ");
+        dwork = new JLabel("Days Work: ");
+        tfname = new JTextField(7);
+        tlname = new JTextField(7);
+        tpos = new JTextField(7);
+        tmrate = new JTextField(7);
+        tdwork = new JTextField(7);
+        add = new JButton("Add Employee");
+        update = new JButton("Update Employee");
+        delete = new JButton("Delete Employee");
+        dtable = new DefaultTableModel(new Object[]{"Firstname", "Lastname", "Position", "Type", "Rate", "Days Worked"}, 0);
         table = new JTable(dtable);
         layout = new GridBagLayout();
         container = this.getContentPane();
         container.setLayout(layout);
 
-        add(flabel, 0,0,1,1);
-        add(llable, 0,1,1,1);
-        add(ftext,1,0,1,1);
-        add(ltext, 1,1,1,1);
-        add(submit,2,0,1,2);
-        add(new JScrollPane(table), 0,2,3,1);
+        add(fname, 0,0,1,1);
+        add(tfname, 1,0,1,1);
+        add(lname, 2,0,1,1);
+        add(tlname, 3,0,1,1);
+        //add(new JScrollPane(table), 0,2,3,1);
 
         this.setVisible(true);
         this.pack();
