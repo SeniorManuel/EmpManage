@@ -35,8 +35,16 @@ public class Gui extends JFrame {
         add(tfname, 1,0,1,1);
         add(lname, 2,0,1,1);
         add(tlname, 3,0,1,1);
-        //add(new JScrollPane(table), 0,2,3,1);
-
+        add(pos, 0,1,1,1);
+        add(tpos, 1,1,1,1);
+        add(mrate, 2,1,1,1);
+        add(tmrate, 3,1,1,1);
+        add(dwork, 0,2,1,1);
+        add(tdwork, 1,2,1,1);
+        add(add, 2,2,2,1);
+        add(new JScrollPane(table), 0,3,4,1);
+        add(update,0,4,1,1);
+        add(delete,0,5,1,1);
         this.setVisible(true);
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
