@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
 import java.util.Vector;
 
 public class Main {
@@ -31,30 +32,31 @@ public class Main {
             }
         });
 
-                frame.update.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        int selectedRow = frame.table.getSelectedRow();
-                        if (selectedRow != -1) {
-                            String fget = frame.tfname.getText();
-                            String lget = frame.tlname.getText();
-                            String pget = frame.tpos.getText();
-                            String mget = frame.tmrate.getText();
-                            String wget = frame.tdwork.getText();
-                            String tget = frame.ttype.getText();
+        frame.update.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = frame.table.getSelectedRow();
+                if (selectedRow != -1) {
+                    String fget = frame.tfname.getText();
+                    String lget = frame.tlname.getText();
+                    String pget = frame.tpos.getText();
+                    String mget = frame.tmrate.getText();
+                    String wget = frame.tdwork.getText();
+                    String tget = frame.ttype.getText();
 
-                            if (fget.isEmpty() || lget.isEmpty() || pget.isEmpty() || mget.isEmpty() || wget.isEmpty() || tget.isEmpty()) {
-                                JOptionPane.showMessageDialog(frame, " retype your changes ");
-                                return;
-                            }
-
-                            try {
-                                Double.parseDouble(mget);
-                                Integer.parseInt(wget);
-                            } catch (NumberFormatException ex) {
-                                JOptionPane.showMessageDialog(frame, " Monthly Rate and Days Worked must be number ");
-                                return;
-                            }
+                    if (!fget.isEmpty() && !lget.isEmpty()) {
+                        try {
+                            Connection conn = dbConnection.getConnection();
+                            String sql = "UPDATE employees SET position = ?, type = ?, rate = ?, days_worked = ? WHERE firstname = ? AND lastname = ?";
+                            java.sql.PreparedStatement  stmt = conn.prepareStatement(sql);
+                            stmt.setString(1, pget);
+                            stmt.setString(2, tget);
+                            stmt.setDouble(3, Double.parseDouble(mget));
+                            stmt.setInt(4, Integer.parseInt(wget));
+                            stmt.setString(5, fget);
+                            stmt.setString(6, lget);
+                            stmt.executeUpdate();
+                            conn.close();
 
                             frame.dtable.setValueAt(fget, selectedRow, 0);
                             frame.dtable.setValueAt(lget, selectedRow, 1);
@@ -69,11 +71,19 @@ public class Main {
                             frame.ttype.setText("");
                             frame.tmrate.setText("");
                             frame.tdwork.setText("");
-                        } else {
-                            JOptionPane.showMessageDialog(frame, " select a row of employee you want to update ");
+
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(frame, "Error updating database: " + ex.getMessage());
                         }
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Fill in Firstname and Lastname.");
                     }
-                });
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Select a row to update.");
+                }
             }
-        }
+        });
+
+    }
+}
 
