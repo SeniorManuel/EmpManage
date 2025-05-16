@@ -3,8 +3,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class Gui extends JFrame {
-    JLabel fname, lname, pos, mrate, dwork;
-    JTextField tfname, tlname, tpos, tmrate, tdwork;
+    JLabel fname, lname, pos, mrate, dwork, type;
+    JTextField tfname, tlname, tpos, tmrate, tdwork, ttype;
     JButton add, update, delete;
     DefaultTableModel dtable;
     JTable table;
@@ -17,11 +17,13 @@ public class Gui extends JFrame {
         pos = new JLabel("Position: ");
         mrate = new JLabel("Monthly Rate: ");
         dwork = new JLabel("Days Work: ");
+        type = new JLabel("Type: ");
         tfname = new JTextField(7);
         tlname = new JTextField(7);
         tpos = new JTextField(7);
         tmrate = new JTextField(7);
         tdwork = new JTextField(7);
+        ttype = new JTextField(7);
         add = new JButton("Add Employee");
         update = new JButton("Update Employee");
         delete = new JButton("Delete Employee");
@@ -41,10 +43,12 @@ public class Gui extends JFrame {
         add(tmrate, 3,1,1,1);
         add(dwork, 0,2,1,1);
         add(tdwork, 1,2,1,1);
-        add(add, 2,2,2,1);
-        add(new JScrollPane(table), 0,3,4,1);
-        add(update,0,4,1,1);
-        add(delete,0,5,1,1);
+        add(type ,2,2,1,1);
+        add(ttype, 3,2,1,1);
+        add(add, 0,3,4,1);
+        add(new JScrollPane(table), 0,4,4,1);
+        add(update,0,5,4,1);
+        add(delete,0,6,4,1);
         this.setVisible(true);
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

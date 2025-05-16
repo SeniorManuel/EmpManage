@@ -6,20 +6,29 @@ import java.util.Vector;
 public class Main {
     public static void main(String[] args) {
         Gui frame = new Gui();
+        //tfname, tlname, tpos, tmrate, tdwork
 
-//        frame.submit.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                String fget = frame.ftext.getText();
-//                String lget = frame.ltext.getText();
-//                if (!fget.isEmpty() && !lget.isEmpty()) {
-//                    frame.dtable.addRow(new Object[]{fget, lget});
-//                    frame.ftext.setText("");
-//                    frame.ltext.setText("");
-//                } else {
-//                    JOptionPane.showMessageDialog(frame, "Kupal ka!");
-//                }
-//            }
-//        });
+        frame.add.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String fget = frame.tfname.getText();
+                String lget = frame.tlname.getText();
+                String pget = frame.tpos.getText();
+                String mget= frame.tmrate.getText();
+                String wget = frame.tdwork.getText();
+                String tget = frame.ttype.getText();
+                if (!fget.isEmpty() && !lget.isEmpty()) {
+                    frame.dtable.addRow(new Object[]{fget, lget, pget, tget, mget, wget});
+                    frame.tfname.setText("");
+                    frame.tlname.setText("");
+                    frame.tpos.setText("");
+                    frame.ttype.setText("");
+                    frame.tmrate.setText("");
+                    frame.tdwork.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Kupal ka!");
+                }
+            }
+        });
     }
 }
