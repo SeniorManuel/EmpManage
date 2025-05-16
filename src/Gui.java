@@ -5,7 +5,7 @@ import java.awt.*;
 public class Gui extends JFrame {
     JLabel fname, lname, pos, mrate, dwork, type;
     JTextField tfname, tlname, tpos, tmrate, tdwork, ttype;
-    JButton add, update, delete;
+    JButton add, update, delete, load;
     DefaultTableModel dtable;
     JTable table;
     GridBagLayout layout;
@@ -27,6 +27,7 @@ public class Gui extends JFrame {
         add = new JButton("Add Employee");
         update = new JButton("Update Employee");
         delete = new JButton("Delete Employee");
+        load = new JButton("Load All Employees");
         dtable = new DefaultTableModel(new Object[]{"Firstname", "Lastname", "Position", "Type", "Rate", "Days Worked"}, 0);
         table = new JTable(dtable);
         layout = new GridBagLayout();
@@ -46,9 +47,10 @@ public class Gui extends JFrame {
         add(type ,2,2,1,1);
         add(ttype, 3,2,1,1);
         add(add, 0,3,4,1);
-        add(new JScrollPane(table), 0,4,4,1);
-        add(update,0,5,4,1);
-        add(delete,0,6,4,1);
+        add(load, 0,4,4,1);
+        add(new JScrollPane(table), 0,5,4,1);
+        add(update,0,6,4,1);
+        add(delete,0,7,4,1);
         this.setVisible(true);
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -63,6 +65,4 @@ public class Gui extends JFrame {
         grid.fill = GridBagConstraints.BOTH;
         container.add(component, grid);
     }
-
-
 }
