@@ -30,5 +30,17 @@ public class Main {
                 }
             }
         });
+        frame.delete.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = frame.table.getSelectedRow();
+                if (selectedRow != -1) {
+                    frame.dtable.removeRow(selectedRow);
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Select a row to delete.");
+                }
+            }
+        });
+
     }
 }
