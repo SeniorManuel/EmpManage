@@ -5,7 +5,7 @@ import java.awt.*;
 public class Gui extends JFrame {
     JLabel fname, lname, pos, mrate, dwork, type, presentDays, absentDays;
     JTextField tfname, tlname, tpos, tmrate, tdwork, ttype, tpresent, tabsent;
-    JButton add, update, delete, load, markAttendance;
+    JButton add, update, delete, load, markAttendance, payResults;
     DefaultTableModel dtable;
     JTable table;
     GridBagLayout layout;
@@ -36,6 +36,7 @@ public class Gui extends JFrame {
         delete = new JButton("Delete Employee");
         load = new JButton("Load All Employees");
         markAttendance = new JButton("Mark Attendance");
+        payResults = new JButton("Calculate Payroll and Generate results");
 
         dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Type", "Rate", "Days Worked", "Present", "Absent"}, 0);
         table = new JTable(dtable);
@@ -61,39 +62,11 @@ public class Gui extends JFrame {
         add(tabsent, 3,3,1,1);
         add(add, 0,4,2,1);
         add(load, 2,4,2,1);
-        add(markAttendance, 0,5,4,1);
+        add(markAttendance, 0,5,2,1);
+        add(payResults, 2,5,2,1);
         add(new JScrollPane(table), 0,6,4,1);
         add(update, 0,7,2,1);
         add(delete, 2,7,2,1);
-
-        add.addActionListener(e -> {
-            String id = String.valueOf(empId++);
-            String fname = tfname.getText();
-            String lname = tlname.getText();
-            String position = tpos.getText();
-            String type = ttype.getText();
-            String rate = tmrate.getText();
-            String daysWorked = tdwork.getText();
-            String present = tpresent.getText();
-            String absent = tabsent.getText();
-            dtable.addRow(new Object[]{id, fname, lname, position, type, rate, daysWorked, present, absent});
-        });
-
-        markAttendance.addActionListener(e -> {
-            int selectedRow = table.getSelectedRow();
-            if (selectedRow != -1) {
-                try {
-                    int present = Integer.parseInt(JOptionPane.showInputDialog("Enter Present Days:"));
-                    int absent = Integer.parseInt(JOptionPane.showInputDialog("Enter Absent Days:"));
-                    dtable.setValueAt(String.valueOf(present), selectedRow, 7);
-                    dtable.setValueAt(String.valueOf(absent), selectedRow, 8);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid input! Please enter numeric values.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Please select an employee from the table.", "No Selection", JOptionPane.WARNING_MESSAGE);
-            }
-        });
 
         this.setVisible(true);
         this.pack();
@@ -108,9 +81,5 @@ public class Gui extends JFrame {
         grid.gridheight = gridh;
         grid.fill = GridBagConstraints.BOTH;
         container.add(component, grid);
-    }
-
-    public static void main(String[] args) {
-        new Gui();
     }
 }
