@@ -66,3 +66,8 @@ public class Gui extends JFrame {
         container.add(component, grid);
     }
 }
+
+
+
+
+
