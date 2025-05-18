@@ -23,6 +23,7 @@ public class dbConnection {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
+                int id = rs.getInt("id");
                 String fname = rs.getString("firstname");
                 String lname = rs.getString("lastname");
                 String pos = rs.getString("position");
@@ -30,7 +31,7 @@ public class dbConnection {
                 String rate = rs.getString("rate");
                 String daysWorked = rs.getString("days_worked");
 
-                frame.dtable.addRow(new Object[]{fname, lname, pos, type, rate, daysWorked});
+                frame.dtable.addRow(new Object[]{id, fname, lname, pos, type, rate, daysWorked});
             }
 
             conn.close();

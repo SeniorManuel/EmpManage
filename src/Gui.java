@@ -3,9 +3,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class Gui extends JFrame {
-    JLabel fname, lname, pos, mrate, dwork, type, presentDays, absentDays;
-    JTextField tfname, tlname, tpos, tmrate, tdwork, ttype, tpresent, tabsent;
-    JButton add, update, delete, load, markAttendance, payResults;
+    JLabel fname, lname, pos, mrate, dwork, type;
+    JTextField tfname, tlname, tpos, tmrate, tdwork, ttype;
+    JButton add, update, delete, load, payResults;
     DefaultTableModel dtable;
     JTable table;
     GridBagLayout layout;
@@ -19,8 +19,6 @@ public class Gui extends JFrame {
         mrate = new JLabel("Monthly Rate: ");
         dwork = new JLabel("Days Work: ");
         type = new JLabel("Type: ");
-        presentDays = new JLabel("Present Days: ");
-        absentDays = new JLabel("Absent Days: ");
 
         tfname = new JTextField(7);
         tlname = new JTextField(7);
@@ -28,17 +26,14 @@ public class Gui extends JFrame {
         tmrate = new JTextField(7);
         tdwork = new JTextField(7);
         ttype = new JTextField(7);
-        tpresent = new JTextField(7);
-        tabsent = new JTextField(7);
 
         add = new JButton("Add Employee");
         update = new JButton("Update Employee");
         delete = new JButton("Delete Employee");
         load = new JButton("Load All Employees");
-        markAttendance = new JButton("Mark Attendance");
         payResults = new JButton("Calculate Payroll and Generate results");
 
-        dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Type", "Rate", "Days Worked", "Present", "Absent"}, 0);
+        dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Type", "Rate", "Days Worked"}, 0);
         table = new JTable(dtable);
         layout = new GridBagLayout();
         container = this.getContentPane();
@@ -56,14 +51,9 @@ public class Gui extends JFrame {
         add(tdwork, 1,2,1,1);
         add(type ,2,2,1,1);
         add(ttype, 3,2,1,1);
-        add(presentDays, 0,3,1,1);
-        add(tpresent, 1,3,1,1);
-        add(absentDays, 2,3,1,1);
-        add(tabsent, 3,3,1,1);
         add(add, 0,4,2,1);
         add(load, 2,4,2,1);
-        add(markAttendance, 0,5,2,1);
-        add(payResults, 2,5,2,1);
+        add(payResults, 0,5,4,1);
         add(new JScrollPane(table), 0,6,4,1);
         add(update, 0,7,2,1);
         add(delete, 2,7,2,1);
