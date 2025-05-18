@@ -35,9 +35,34 @@ public class Main {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = frame.table.getSelectedRow();
                 if (selectedRow != -1) {
-                    frame.dtable.removeRow(selectedRow);
+                    String id = (String) frame.dtable.getValueAt(selectedRow, 0);
+
+                    int confirm = JOptionPane.showConfirmDialog(frame,
+                            "Are you sure you want to delete employee ID " + id + "?",
+                            "Confirm Delete", JOptionPane.YES_NO_OPTION);
+
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        try {
+                            Connection conn = dbConnection.getConnection();
+                            String sql = "DELETE FROM employees WHERE id = ?";
+                            java.sql.PreparedStatement stmt = conn.prepareStatement(sql);
+                            stmt.setString(1, id);
+                            int rowsDeleted = stmt.executeUpdate();
+                            conn.close();
+
+                            if (rowsDeleted > 0) {
+                                frame.dtable.removeRow(selectedRow);
+                                JOptionPane.showMessageDialog(frame, "Employee deleted successfully.");
+                            } else {
+                                JOptionPane.showMessageDialog(frame, "Employee not found or could not be deleted.");
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(frame, "Error deleting employee: " + ex.getMessage());
+                        }
+                    }
                 } else {
-                    JOptionPane.showMessageDialog(frame, "Select a row to delete.");
+                    JOptionPane.showMessageDialog(frame, "Select an employee to delete.");
                 }
             }
         });
