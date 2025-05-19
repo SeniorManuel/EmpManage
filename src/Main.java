@@ -7,6 +7,7 @@ import java.sql.Connection;
 public class Main {
     public static void main(String[] args) {
         Gui frame = new Gui();
+        dbConnection.loadEmployees(frame);
 
         frame.add.addActionListener(new ActionListener() {
             @Override
@@ -58,14 +59,6 @@ public class Main {
             }
         });
 
-        frame.load.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dbConnection.loadEmployees(frame);
-                JOptionPane.showMessageDialog(frame, "All employees are loaded.");
-            }
-        });
-
         frame.update.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -81,29 +74,36 @@ public class Main {
                     if (!fget.isEmpty() && !lget.isEmpty()) {
                         try {
                             Connection conn = dbConnection.getConnection();
-                            String sql = "UPDATE employees SET position = ?, type = ?, rate = ?, days_worked = ? WHERE firstname = ? AND lastname = ?";
-                            java.sql.PreparedStatement  stmt = conn.prepareStatement(sql);
-                            stmt.setString(1, pget);
-                            stmt.setString(2, tget);
-                            stmt.setDouble(3, Double.parseDouble(mget));
-                            stmt.setString(4, fget);
-                            stmt.setString(5, lget);
+                            String sql = "UPDATE employees SET firstname = ?, lastname = ?, position = ?, type = ?, rate = ?, days_worked = ? WHERE id = ?";
+                            PreparedStatement  stmt = conn.prepareStatement(sql);
+
+                            stmt.setString(1, fget);
+                            stmt.setString(2, lget);
+                            stmt.setString(3, pget);
+                            stmt.setString(4, tget);
+                            stmt.setDouble(5, Double.parseDouble(mget));
                             stmt.setString(6, dget);
+
+                            int id = (int) frame.dtable.getValueAt(selectedRow,0);
+                            stmt.setInt(7,id);
                             stmt.executeUpdate();
                             conn.close();
 
-                            frame.dtable.setValueAt(fget, selectedRow, 0);
-                            frame.dtable.setValueAt(lget, selectedRow, 1);
-                            frame.dtable.setValueAt(pget, selectedRow, 2);
-                            frame.dtable.setValueAt(tget, selectedRow, 3);
-                            frame.dtable.setValueAt(mget, selectedRow, 4);
-                            frame.dtable.setValueAt(dget, selectedRow, 5);
+                            frame.dtable.setValueAt(fget, selectedRow, 1);
+                            frame.dtable.setValueAt(lget, selectedRow, 2);
+                            frame.dtable.setValueAt(pget, selectedRow, 3);
+                            frame.dtable.setValueAt(tget, selectedRow, 4);
+                            frame.dtable.setValueAt(mget, selectedRow, 5);
+                            frame.dtable.setValueAt(dget, selectedRow, 6);
+
                             frame.tfname.setText("");
                             frame.tlname.setText("");
                             frame.tpos.setText("");
                             frame.ttype.setText("");
                             frame.tmrate.setText("");
                             frame.tdwork.setText("");
+
+                            JOptionPane.showMessageDialog(frame, "Employee Updated Successfully");
                         } catch (Exception ex) {
                             JOptionPane.showMessageDialog(frame, "Error updating database: " + ex.getMessage());
                         }
