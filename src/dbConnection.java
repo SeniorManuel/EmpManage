@@ -40,9 +40,4 @@ public class dbConnection {
             JOptionPane.showMessageDialog(frame, "Failed to load data.");
         }
     }
-<<<<<<< HEAD
 }
-
-=======
-}
->>>>>>> 3721b3f90e609896e14ecde0c8bffe6264f9e2ab

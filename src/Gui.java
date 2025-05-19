@@ -17,7 +17,7 @@ public class Gui extends JFrame {
         pos = new JLabel("Position: ");
         mrate = new JLabel("Monthly Rate: ");
         type = new JLabel("Type: ");
-        dwork = new JLabel ("Days Work per Month: ");
+        dwork = new JLabel("Days Work per Month: ");
 
         tfname = new JTextField(7);
         tlname = new JTextField(7);
@@ -38,25 +38,25 @@ public class Gui extends JFrame {
         container = this.getContentPane();
         container.setLayout(layout);
 
-        add(fname, 0,0,1,1);
-        add(tfname, 1,0,1,1);
-        add(lname, 2,0,1,1);
-        add(tlname, 3,0,1,1);
-        add(pos, 0,1,1,1);
-        add(tpos, 1,1,1,1);
-        add(mrate, 2,1,1,1);
-        add(tmrate, 3,1,1,1);
-        add(type ,0,2,1,1);
-        add(ttype, 1,2,1,1);
-        add(dwork, 2,2,1,1);
-        add(tdwork, 3,2,1,1);
+        add(fname, 0, 0, 1, 1);
+        add(tfname, 1, 0, 1, 1);
+        add(lname, 2, 0, 1, 1);
+        add(tlname, 3, 0, 1, 1);
+        add(pos, 0, 1, 1, 1);
+        add(tpos, 1, 1, 1, 1);
+        add(mrate, 2, 1, 1, 1);
+        add(tmrate, 3, 1, 1, 1);
+        add(type, 0, 2, 1, 1);
+        add(ttype, 1, 2, 1, 1);
+        add(dwork, 2, 2, 1, 1);
+        add(tdwork, 3, 2, 1, 1);
 
-        add(add, 0,4,2,1);
-        add(load, 2,4,2,1);
-        add(payResults, 0,5,4,1);
-        add(new JScrollPane(table), 0,6,4,1);
-        add(update, 0,7,2,1);
-        add(delete, 2,7,2,1);
+        add(add, 0, 4, 2, 1);
+        add(load, 2, 4, 2, 1);
+        add(payResults, 0, 5, 4, 1);
+        add(new JScrollPane(table), 0, 6, 4, 1);
+        add(update, 0, 7, 2, 1);
+        add(delete, 2, 7, 2, 1);
 
         this.setVisible(true);
         this.pack();
@@ -72,13 +72,4 @@ public class Gui extends JFrame {
         grid.fill = GridBagConstraints.BOTH;
         container.add(component, grid);
     }
-<<<<<<< HEAD
 }
-=======
-}
-
-
-
-
-
->>>>>>> 3721b3f90e609896e14ecde0c8bffe6264f9e2ab
