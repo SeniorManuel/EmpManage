@@ -15,7 +15,6 @@ public class Main {
                 String fname = frame.tfname.getText();
                 String lname = frame.tlname.getText();
                 String position = frame.tpos.getText();
-                String type = frame.ttype.getText();
                 String rate = frame.tmrate.getText();
                 String daysWorked = frame.tdwork.getText();
 
@@ -23,15 +22,14 @@ public class Main {
                     try {
                         Connection conn = dbConnection.getConnection();
 
-                        String query = "INSERT INTO employees (firstname, lastname, position, type, rate, days_worked) VALUES (?, ?, ?, ?, ?, ?)";
+                        String query = "INSERT INTO employees (firstname, lastname, position, rate, days_worked) VALUES (?, ?, ?, ?, ?)";
                         PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
                         stmt.setString(1, fname);
                         stmt.setString(2, lname);
                         stmt.setString(3, position);
-                        stmt.setString(4, type);
-                        stmt.setString(5, rate);
-                        stmt.setString(6, daysWorked);
+                        stmt.setString(4, rate);
+                        stmt.setString(5, daysWorked);
 
                         stmt.executeUpdate();
                         ResultSet rs = stmt.getGeneratedKeys();
@@ -41,11 +39,10 @@ public class Main {
                         }
                         conn.close();
 
-                        frame.dtable.addRow(new Object[]{sId, fname, lname, position, type, rate, daysWorked});
+                        frame.dtable.addRow(new Object[]{sId, fname, lname, position, rate, daysWorked});
                         frame.tfname.setText("");
                         frame.tlname.setText("");
                         frame.tpos.setText("");
-                        frame.ttype.setText("");
                         frame.tmrate.setText("");
                         frame.tdwork.setText("");
 
@@ -68,38 +65,34 @@ public class Main {
                     String lget = frame.tlname.getText();
                     String pget = frame.tpos.getText();
                     String mget = frame.tmrate.getText();
-                    String tget = frame.ttype.getText();
                     String dget = frame.tdwork.getText();
 
                     if (!fget.isEmpty() && !lget.isEmpty()) {
                         try {
                             Connection conn = dbConnection.getConnection();
-                            String sql = "UPDATE employees SET firstname = ?, lastname = ?, position = ?, type = ?, rate = ?, days_worked = ? WHERE id = ?";
+                            String sql = "UPDATE employees SET firstname = ?, lastname = ?, position = ?, rate = ?, days_worked = ? WHERE id = ?";
                             PreparedStatement stmt = conn.prepareStatement(sql);
 
                             stmt.setString(1, fget);
                             stmt.setString(2, lget);
                             stmt.setString(3, pget);
-                            stmt.setString(4, tget);
-                            stmt.setDouble(5, Double.parseDouble(mget));
-                            stmt.setString(6, dget);
+                            stmt.setDouble(4, Double.parseDouble(mget));
+                            stmt.setString(5, dget);
 
                             int id = (int) frame.dtable.getValueAt(selectedRow, 0);
-                            stmt.setInt(7, id);
+                            stmt.setInt(6, id);
                             stmt.executeUpdate();
                             conn.close();
 
                             frame.dtable.setValueAt(fget, selectedRow, 1);
                             frame.dtable.setValueAt(lget, selectedRow, 2);
                             frame.dtable.setValueAt(pget, selectedRow, 3);
-                            frame.dtable.setValueAt(tget, selectedRow, 4);
-                            frame.dtable.setValueAt(mget, selectedRow, 5);
-                            frame.dtable.setValueAt(dget, selectedRow, 6);
+                            frame.dtable.setValueAt(mget, selectedRow, 4);
+                            frame.dtable.setValueAt(dget, selectedRow, 5);
 
                             frame.tfname.setText("");
                             frame.tlname.setText("");
                             frame.tpos.setText("");
-                            frame.ttype.setText("");
                             frame.tmrate.setText("");
                             frame.tdwork.setText("");
 
@@ -122,6 +115,8 @@ public class Main {
                 int selectedRow = frame.table.getSelectedRow();
                 if (selectedRow != -1) {
                     String id = String.valueOf(frame.dtable.getValueAt(selectedRow, 0));
+                    String fname = String.valueOf(frame.dtable.getValueAt(selectedRow, 1));
+                    String lname = String.valueOf(frame.dtable.getValueAt(selectedRow, 2));
 
                     int confirm = JOptionPane.showConfirmDialog(frame,
                             "Are you sure you want to delete employee ID " + id + "?",
@@ -131,14 +126,19 @@ public class Main {
                         try {
                             Connection conn = dbConnection.getConnection();
                             String sql = "DELETE FROM employees WHERE id = ?";
-                            java.sql.PreparedStatement stmt = conn.prepareStatement(sql);
+                            PreparedStatement stmt = conn.prepareStatement(sql);
                             stmt.setString(1, id);
                             int rowsDeleted = stmt.executeUpdate();
+                            String payrollSQL = "DELETE FROM payroll WHERE fname = ? AND lname = ?";
+                            PreparedStatement payrollStmt = conn.prepareStatement(payrollSQL);
+                            payrollStmt.setString(1, fname);
+                            payrollStmt.setString(2, lname);
+                            payrollStmt.executeUpdate();
                             conn.close();
 
                             if (rowsDeleted > 0) {
                                 frame.dtable.removeRow(selectedRow);
-                                JOptionPane.showMessageDialog(frame, "Employee deleted successfully.");
+                                JOptionPane.showMessageDialog(frame, "Record deleted successfully.");
                             } else {
                                 JOptionPane.showMessageDialog(frame, "Employee not found or could not be deleted.");
                             }
@@ -167,9 +167,8 @@ public class Main {
                     String fname = frame.table.getValueAt(selectedRow, 1).toString();
                     String lname = frame.table.getValueAt(selectedRow, 2).toString();
                     String position = frame.table.getValueAt(selectedRow, 3).toString();
-                    String type = frame.table.getValueAt(selectedRow, 4).toString();
-                    String days = frame.table.getValueAt(selectedRow, 6).toString();
-                    String month = frame.table.getValueAt(selectedRow, 5).toString();
+                    String days = frame.table.getValueAt(selectedRow, 5).toString();
+                    String month = frame.table.getValueAt(selectedRow, 4).toString();
 
                     if (days.isEmpty() || month.isEmpty()) {
                         JOptionPane.showMessageDialog(null, "Monthly Rate or Days Worked field is empty.");
@@ -204,10 +203,11 @@ public class Main {
 
                     double netPay = gross - totalContributions - incomeTax;
 
-                    new payResults(fname, lname, position, type, gross, sss, philhealth, pagibig, incomeTax, netPay);
+                    new payResults(fname, lname, position, gross, sss, philhealth, pagibig, incomeTax, netPay);
+                    dbConnection.insertPayroll(fname, lname, position, gross, sss, philhealth, pagibig, incomeTax, netPay, monthlyRate);
 
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Invalid number format in Days Worked or Monthly Rate.");
+                    JOptionPane.showMessageDialog(null, "Invalid number format.");
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage());
                 }
@@ -215,3 +215,5 @@ public class Main {
         });
     }
 }
+
+//No doubling of employee name

@@ -3,8 +3,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class Gui extends JFrame {
-    JLabel fname, lname, pos, mrate, type, dwork;
-    JTextField tfname, tlname, tpos, tmrate, ttype, tdwork;
+    JLabel fname, lname, pos, mrate, dwork;
+    JTextField tfname, tlname, tpos, tmrate, tdwork;
     JButton add, update, delete, genResuslts, payResults, present;
     DefaultTableModel dtable;
     JTable table;
@@ -16,14 +16,12 @@ public class Gui extends JFrame {
         lname = new JLabel("Lastname: ");
         pos = new JLabel("Position: ");
         mrate = new JLabel("Monthly Rate: ");
-        type = new JLabel("Type: ");
         dwork = new JLabel("Days Work per Month: ");
 
         tfname = new JTextField(7);
         tlname = new JTextField(7);
         tpos = new JTextField(7);
         tmrate = new JTextField(7);
-        ttype = new JTextField(7);
         tdwork = new JTextField(7);
 
         add = new JButton("Add Employee");
@@ -33,7 +31,7 @@ public class Gui extends JFrame {
         payResults = new JButton("Calculate Payroll");
         present = new JButton("Mark Attendance");
 
-        dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Type", "Rate", "Days Work"}, 0);
+        dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Rate", "Days Work"}, 0);
         table = new JTable(dtable);
         layout = new GridBagLayout();
         container = this.getContentPane();
@@ -47,10 +45,8 @@ public class Gui extends JFrame {
         add(tpos, 1, 1, 1, 1);
         add(mrate, 2, 1, 1, 1);
         add(tmrate, 3, 1, 1, 1);
-        add(type, 0, 2, 1, 1);
-        add(ttype, 1, 2, 1, 1);
-        add(dwork, 2, 2, 1, 1);
-        add(tdwork, 3, 2, 1, 1);
+        add(dwork, 0, 2, 1, 1);
+        add(tdwork, 1, 2, 1, 1);
 
         add(add, 0, 4, 2, 1);
         add(present, 2, 4, 2, 1);

@@ -2,17 +2,16 @@ import javax.swing.*;
 import java.awt.*;
 
 public class payResults extends JFrame {
-    JLabel fnameLabel, lnameLabel, posLabel, typeLabel;
+    JLabel fnameLabel, lnameLabel, posLabel;
     JLabel grossLabel, sssLabel, philLabel, pagibigLabel, incomeTaxLabel, netPayLabel;
 
-    JLabel fnameVal, lnameVal, posVal, typeVal;
+    JLabel fnameVal, lnameVal, posVal;
     JLabel grossVal, sssVal, philVal, pagibigVal, incomeTaxVal, netPayVal;
 
     GridBagLayout layout;
     Container container;
 
-    public payResults(String fname, String lname, String position, String type,
-                      double gross, double sss, double philhealth, double pagibig, double incomeTax, double netPay) {
+    public payResults(String fname, String lname, String position, double gross, double sss, double philhealth, double pagibig, double incomeTax, double netPay) {
 
         setTitle("Payroll Results");
         setSize(450, 350);
@@ -26,7 +25,6 @@ public class payResults extends JFrame {
         fnameLabel = new JLabel("Firstname: ");
         lnameLabel = new JLabel("Lastname: ");
         posLabel = new JLabel("Position: ");
-        typeLabel = new JLabel("Type: ");
 
         grossLabel = new JLabel("Gross Pay: ");
         sssLabel = new JLabel("SSS: ");
@@ -38,7 +36,6 @@ public class payResults extends JFrame {
         fnameVal = new JLabel(fname);
         lnameVal = new JLabel(lname);
         posVal = new JLabel(position);
-        typeVal = new JLabel(type);
 
         grossVal = new JLabel(String.format("₱ %.2f", gross));
         sssVal = new JLabel(String.format("₱ %.2f", sss));
@@ -53,20 +50,18 @@ public class payResults extends JFrame {
         add(lnameVal, 3, 0, 1, 1);
         add(posLabel, 0, 1, 1, 1);
         add(posVal, 1, 1, 1, 1);
-        add(typeLabel, 2, 1, 1, 1);
-        add(typeVal, 3, 1, 1, 1);
-        add(grossLabel, 0, 4, 1, 1);
-        add(grossVal, 1, 4, 1, 1);
-        add(sssLabel, 0, 5, 1, 1);
-        add(sssVal, 1, 5, 1, 1);
-        add(philLabel, 0, 6, 1, 1);
-        add(philVal, 1, 6, 1, 1);
-        add(pagibigLabel, 0, 7, 1, 1);
-        add(pagibigVal, 1, 7, 1, 1);
-        add(incomeTaxLabel, 0, 8, 1, 1);
-        add(incomeTaxVal, 1, 8, 1, 1);
-        add(netPayLabel, 0, 9, 1, 1);
-        add(netPayVal, 1, 9, 1, 1);
+        add(grossLabel, 0, 2, 1, 1);
+        add(grossVal, 1, 2, 1, 1);
+        add(sssLabel, 0, 3, 1, 1);
+        add(sssVal, 1, 3, 1, 1);
+        add(philLabel, 0, 4, 1, 1);
+        add(philVal, 1, 4, 1, 1);
+        add(pagibigLabel, 0, 5, 1, 1);
+        add(pagibigVal, 1, 5, 1, 1);
+        add(incomeTaxLabel, 0, 6, 1, 1);
+        add(incomeTaxVal, 1, 6, 1, 1);
+        add(netPayLabel, 0, 7, 1, 1);
+        add(netPayVal, 1, 7, 1, 1);
 
         setVisible(true);
     }
