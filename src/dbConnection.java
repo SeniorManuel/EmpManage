@@ -6,7 +6,7 @@ public class dbConnection {
     public static Connection getConnection() throws SQLException {
         String url = "jdbc:mysql://localhost:3306/emp_manage";
         String user = "root";
-        String pass = "EF2120762";
+        String pass = "usls123";
         return DriverManager.getConnection(url, user, pass);
     }
 
@@ -15,7 +15,7 @@ public class dbConnection {
             frame.dtable.setRowCount(0);
 
             Connection conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/emp_manage", "root", "EF2120762"
+                    "jdbc:mysql://localhost:3306/emp_manage", "root", "usls123"
             );
 
             String query = "SELECT * FROM employees";
@@ -42,9 +42,9 @@ public class dbConnection {
 
     //butngan pgd sng ga check pgd daysWorked
     public static void insertPayroll(String fname, String lname, String position, double gross,
-                                             double sss, double philhealth, double pagibig, double incomeTax,
-                                             double netPay, double monthlyRate) {
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp_manage", "root", "EF2120762")) {
+                                     double sss, double philhealth, double pagibig, double incomeTax,
+                                     double netPay, double monthlyRate) {
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp_manage", "root", "usls123")) {
 
             String checkSql = "SELECT COUNT(*) FROM payroll WHERE fname = ? AND lname = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkSql);
@@ -92,6 +92,39 @@ public class dbConnection {
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Database error: " + e.getMessage());
+        }
+    }
+
+    public static void markAttendance(String fname, String lname, int worked, int absent, int total) {
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/emp_manage", "root", "EF2120762");
+            String checkSql = "SELECT * FROM attendance WHERE firstName=? AND lastName=?";
+            PreparedStatement checkPst = conn.prepareStatement(checkSql);
+            checkPst.setString(1, fname);
+            checkPst.setString(2, lname);
+            ResultSet rs = checkPst.executeQuery();
+
+            if (rs.next()) {
+                String updateSql = "UPDATE attendance SET daysWorked=?, daysAbsent=?, totalWorkedDays=? WHERE firstName=? AND lastName=?";
+                PreparedStatement updatePst = conn.prepareStatement(updateSql);
+                updatePst.setInt(1, worked);
+                updatePst.setInt(2, absent);
+                updatePst.setInt(3, total);
+                updatePst.setString(4, fname);
+                updatePst.setString(5, lname);
+                updatePst.executeUpdate();
+            } else {
+                String insertSql = "INSERT INTO attendance (firstName, lastName, daysWorked, daysAbsent, totalWorkedDays) VALUES (?, ?, ?, ?, ?)";
+                PreparedStatement insertPst = conn.prepareStatement(insertSql);
+                insertPst.setString(1, fname);
+                insertPst.setString(2, lname);
+                insertPst.setInt(3, worked);
+                insertPst.setInt(4, absent);
+                insertPst.setInt(5, total);
+                insertPst.executeUpdate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

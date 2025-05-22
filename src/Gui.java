@@ -3,8 +3,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class Gui extends JFrame {
-    JLabel fname, lname, pos, mrate, dwork;
-    JTextField tfname, tlname, tpos, tmrate, tdwork;
+    JLabel fname, lname, pos, mrate;
+    JTextField tfname, tlname, tpos, tmrate;
     JButton add, update, delete, genResuslts, payResults, present;
     DefaultTableModel dtable;
     JTable table;
@@ -16,13 +16,11 @@ public class Gui extends JFrame {
         lname = new JLabel("Lastname:");
         pos = new JLabel("Position:");
         mrate = new JLabel("Monthly Rate:");
-        dwork = new JLabel("Days Work per Month:");
 
         tfname = new JTextField(12);
         tlname = new JTextField(12);
         tpos = new JTextField(12);
         tmrate = new JTextField(12);
-        tdwork = new JTextField(12);
 
         add = new JButton("Add Employee");
         update = new JButton("Update Employee");
@@ -39,8 +37,9 @@ public class Gui extends JFrame {
         payResults.setPreferredSize(bSize);
         present.setPreferredSize(bSize);
 
-        dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Rate", "Days Work"}, 0);
+        dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Rate"}, 0);
         table = new JTable(dtable);
+        table.setRowHeight(10);
 
         JPanel mainPanel = new JPanel();
         layout = new GridBagLayout();
@@ -56,8 +55,6 @@ public class Gui extends JFrame {
         addP(panDetails, tpos, 1, 1, 1, 1);
         addP(panDetails, mrate, 2, 1, 1, 1);
         addP(panDetails, tmrate, 3, 1, 1, 1);
-        addP(panDetails, dwork, 2, 2, 1, 1);
-        addP(panDetails, tdwork, 3, 2, 1, 1);
         add(mainPanel, panDetails, 0, 0, 4, 1);
 
         JPanel panActions = new JPanel(new GridBagLayout());
@@ -69,16 +66,17 @@ public class Gui extends JFrame {
         add(mainPanel, panActions, 0, 1, 4, 1);
 
         JPanel panTable = new JPanel(new BorderLayout());
-        panTable.setBorder(BorderFactory.createTitledBorder("Employee Records"));
+        panTable.setBorder(BorderFactory.createTitledBorder(""));
         panTable.add(new JScrollPane(table), BorderLayout.CENTER);
         add(mainPanel, panTable, 0, 2, 4, 1);
+        panTable.setPreferredSize(new Dimension(550, 250));
 
         JPanel panBottom = new JPanel(new GridBagLayout());
         panBottom.setBorder(BorderFactory.createTitledBorder("Modify Records"));
         addP(panBottom, update, 0, 0, 2, 1);
         addP(panBottom, delete, 2, 0, 2, 1);
         add(mainPanel, panBottom, 0, 3, 4, 1);
-        
+
         JScrollPane scrollPane = new JScrollPane(mainPanel,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);

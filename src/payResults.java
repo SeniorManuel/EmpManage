@@ -78,3 +78,4 @@ public class payResults extends JFrame {
         container.add(component, gbc);
     }
 }
+

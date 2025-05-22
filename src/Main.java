@@ -9,6 +9,7 @@ public class Main {
         Gui frame = new Gui();
         dbConnection.loadEmployees(frame);
 
+
         frame.add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -16,20 +17,18 @@ public class Main {
                 String lname = frame.tlname.getText();
                 String position = frame.tpos.getText();
                 String rate = frame.tmrate.getText();
-                String daysWorked = frame.tdwork.getText();
 
                 if (!fname.isEmpty() && !lname.isEmpty()) {
                     try {
                         Connection conn = dbConnection.getConnection();
 
-                        String query = "INSERT INTO employees (firstname, lastname, position, rate, days_worked) VALUES (?, ?, ?, ?, ?)";
+                        String query = "INSERT INTO employees (firstname, lastname, position, rate) VALUES (?, ?, ?, ?)";
                         PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
                         stmt.setString(1, fname);
                         stmt.setString(2, lname);
                         stmt.setString(3, position);
                         stmt.setString(4, rate);
-                        stmt.setString(5, daysWorked);
 
                         stmt.executeUpdate();
                         ResultSet rs = stmt.getGeneratedKeys();
@@ -39,12 +38,11 @@ public class Main {
                         }
                         conn.close();
 
-                        frame.dtable.addRow(new Object[]{sId, fname, lname, position, rate, daysWorked});
+                        frame.dtable.addRow(new Object[]{sId, fname, lname, position, rate});
                         frame.tfname.setText("");
                         frame.tlname.setText("");
                         frame.tpos.setText("");
                         frame.tmrate.setText("");
-                        frame.tdwork.setText("");
 
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -65,19 +63,17 @@ public class Main {
                     String lget = frame.tlname.getText();
                     String pget = frame.tpos.getText();
                     String mget = frame.tmrate.getText();
-                    String dget = frame.tdwork.getText();
 
                     if (!fget.isEmpty() && !lget.isEmpty()) {
                         try {
                             Connection conn = dbConnection.getConnection();
-                            String sql = "UPDATE employees SET firstname = ?, lastname = ?, position = ?, rate = ?, days_worked = ? WHERE id = ?";
+                            String sql = "UPDATE employees SET firstname = ?, lastname = ?, position = ?, rate = ? WHERE id = ?";
                             PreparedStatement stmt = conn.prepareStatement(sql);
 
                             stmt.setString(1, fget);
                             stmt.setString(2, lget);
                             stmt.setString(3, pget);
                             stmt.setDouble(4, Double.parseDouble(mget));
-                            stmt.setString(5, dget);
 
                             int id = (int) frame.dtable.getValueAt(selectedRow, 0);
                             stmt.setInt(6, id);
@@ -88,13 +84,11 @@ public class Main {
                             frame.dtable.setValueAt(lget, selectedRow, 2);
                             frame.dtable.setValueAt(pget, selectedRow, 3);
                             frame.dtable.setValueAt(mget, selectedRow, 4);
-                            frame.dtable.setValueAt(dget, selectedRow, 5);
 
                             frame.tfname.setText("");
                             frame.tlname.setText("");
                             frame.tpos.setText("");
                             frame.tmrate.setText("");
-                            frame.tdwork.setText("");
 
                             JOptionPane.showMessageDialog(frame, "Employee Updated Successfully");
                         } catch (Exception ex) {
@@ -163,9 +157,18 @@ public class Main {
                     return;
                 }
 
+                String fname = frame.table.getValueAt(selectedRow, 1).toString();
+                String lname = frame.table.getValueAt(selectedRow, 2).toString();
+                String fullName = " " + fname + " " + lname;
+                markPresent mp = new markPresent(fullName);
+
+                int workTotal = mp.totalWorked;
+                if (workTotal == -1) {
+                    JOptionPane.showMessageDialog(null, "Please calculate total worked days first in Attendance.");
+                    return;
+                }
+
                 try {
-                    String fname = frame.table.getValueAt(selectedRow, 1).toString();
-                    String lname = frame.table.getValueAt(selectedRow, 2).toString();
                     String position = frame.table.getValueAt(selectedRow, 3).toString();
                     String days = frame.table.getValueAt(selectedRow, 5).toString();
                     String month = frame.table.getValueAt(selectedRow, 4).toString();
@@ -175,11 +178,9 @@ public class Main {
                         return;
                     }
 
-                    double daysWorked = Double.parseDouble(days);
                     double monthlyRate = Double.parseDouble(month);
-
                     double dailyRate = monthlyRate / 22.0;
-                    double gross = dailyRate * daysWorked;
+                    double gross = dailyRate * workTotal;
 
                     double sss = Math.min(gross, 30000) * 0.045;
                     double philhealth = Math.min(gross, 100000) * 0.025;
@@ -213,7 +214,54 @@ public class Main {
                 }
             }
         });
+
+        frame.present.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = frame.table.getSelectedRow();
+                if (selectedRow != -1) {
+                    String fname = frame.table.getValueAt(selectedRow, 1).toString();
+                    String lname = frame.table.getValueAt(selectedRow, 2).toString();
+                    String fullName = " " + fname + " " + lname;
+
+                    markPresent mp = new markPresent(fullName);
+
+                    mp.submit.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            try {
+                                int worked = Integer.parseInt(mp.workField.getText());
+                                int absent = Integer.parseInt(mp.absentField.getText());
+                                int total = worked - absent;
+                                mp.totalWorked = total;
+
+                                dbConnection.markAttendance(fname, lname, worked, absent, total);
+                                JOptionPane.showMessageDialog(null, "Attendance submitted or updated.");
+                                mp.dispose();
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(null, "Please enter valid numbers for worked and absent days.");
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                                JOptionPane.showMessageDialog(null, "Error submitting attendance.");
+                            }
+                        }
+                    });
+
+                    mp.calculate.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            try {
+                                int worked = Integer.parseInt(mp.workField.getText());
+                                int absent = Integer.parseInt(mp.absentField.getText());
+                                int total = worked - absent;
+                                mp.totalLabel.setText("Total Worked Days: " + total);
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(null, "Enter valid numbers for worked and absent days.");
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+
+
     }
 }
-
-//No doubling of employee name
