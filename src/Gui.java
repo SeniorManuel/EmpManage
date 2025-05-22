@@ -37,9 +37,10 @@ public class Gui extends JFrame {
         payResults.setPreferredSize(bSize);
         present.setPreferredSize(bSize);
 
-        dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Rate"}, 0);
+        // Updated to use "Total Present Days" instead of days_worked
+        dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Rate", "Total Present Days"}, 0);
         table = new JTable(dtable);
-        table.setRowHeight(10);
+        table.setRowHeight(20);
 
         JPanel mainPanel = new JPanel();
         layout = new GridBagLayout();
@@ -66,10 +67,10 @@ public class Gui extends JFrame {
         add(mainPanel, panActions, 0, 1, 4, 1);
 
         JPanel panTable = new JPanel(new BorderLayout());
-        panTable.setBorder(BorderFactory.createTitledBorder(""));
+        panTable.setBorder(BorderFactory.createTitledBorder("Employee Records"));
         panTable.add(new JScrollPane(table), BorderLayout.CENTER);
         add(mainPanel, panTable, 0, 2, 4, 1);
-        panTable.setPreferredSize(new Dimension(550, 250));
+        panTable.setPreferredSize(new Dimension(600, 250));
 
         JPanel panBottom = new JPanel(new GridBagLayout());
         panBottom.setBorder(BorderFactory.createTitledBorder("Modify Records"));
@@ -81,7 +82,7 @@ public class Gui extends JFrame {
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         this.setContentPane(scrollPane);
-        scrollPane.setPreferredSize(new Dimension(600, 600));
+        scrollPane.setPreferredSize(new Dimension(650, 600));
 
         this.setTitle("Employee Management System");
         this.setVisible(true);
