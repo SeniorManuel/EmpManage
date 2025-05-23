@@ -39,7 +39,12 @@ public class Gui extends JFrame {
         payResults.setPreferredSize(bSize);
         present.setPreferredSize(bSize);
 
-        dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Rate", "Days Work"}, 0);
+        dtable = new DefaultTableModel(new String[]{"ID", "Firstname", "Lastname", "Position", "Rate", "Days Worked"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         table = new JTable(dtable);
 
         JPanel mainPanel = new JPanel();
