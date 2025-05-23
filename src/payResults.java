@@ -9,9 +9,9 @@ public class payResults extends JFrame {
     // UI Components
     private JPanel mainPanel, headerPanel, employeeInfoPanel, payrollDetailsPanel, buttonPanel;
     private JLabel titleLabel;
-    private JLabel fnameLabel, lnameLabel, posLabel, typeLabel;
+    private JLabel fnameLabel, lnameLabel, posLabel;
     private JLabel grossLabel, sssLabel, philLabel, pagibigLabel, incomeTaxLabel, netPayLabel;
-    private JLabel fnameVal, lnameVal, posVal, typeVal;
+    private JLabel fnameVal, lnameVal, posVal;
     private JLabel grossVal, sssVal, philVal, pagibigVal, incomeTaxVal, netPayVal;
     private JButton okButton;
 
@@ -31,7 +31,7 @@ public class payResults extends JFrame {
     // Formatter
     private DecimalFormat currencyFormat = new DecimalFormat("₱#,##0.00");
 
-    public payResults(String fname, String lname, String position, String type,
+    public payResults(String fname, String lname, String position,
                       double gross, double sss, double philhealth, double pagibig, double incomeTax, double netPay) {
 
         // Frame setup
@@ -42,13 +42,13 @@ public class payResults extends JFrame {
         setResizable(false);
 
         // Initialize components
-        initializeComponents(fname, lname, position, type, gross, sss, philhealth, pagibig, incomeTax, netPay);
+        initializeComponents(fname, lname, position, gross, sss, philhealth, pagibig, incomeTax, netPay);
         setupLayout();
 
         setVisible(true);
     }
 
-    private void initializeComponents(String fname, String lname, String position, String type,
+    private void initializeComponents(String fname, String lname, String position,
                                       double gross, double sss, double philhealth, double pagibig,
                                       double incomeTax, double netPay) {
 
@@ -86,23 +86,19 @@ public class payResults extends JFrame {
         fnameLabel = createLabel("First Name:");
         lnameLabel = createLabel("Last Name:");
         posLabel = createLabel("Position:");
-        typeLabel = createLabel("Type:");
 
         // Employee info values
         fnameVal = createValueLabel(fname);
         lnameVal = createValueLabel(lname);
         posVal = createValueLabel(position);
-        typeVal = createValueLabel(type);
 
         // Add to employee info panel
         employeeInfoPanel.add(fnameLabel);
         employeeInfoPanel.add(lnameLabel);
         employeeInfoPanel.add(posLabel);
-        employeeInfoPanel.add(typeLabel);
         employeeInfoPanel.add(fnameVal);
         employeeInfoPanel.add(lnameVal);
         employeeInfoPanel.add(posVal);
-        employeeInfoPanel.add(typeVal);
 
         // Payroll Details Panel
         payrollDetailsPanel = new JPanel(new GridLayout(6, 2, 30, 18)); // Further increased spacing
@@ -134,8 +130,6 @@ public class payResults extends JFrame {
         pagibigVal = createCurrencyLabel(pagibig, NEGATIVE_COLOR);   // Red for deduction
         incomeTaxVal = createCurrencyLabel(incomeTax, NEGATIVE_COLOR); // Red for deduction
         netPayVal = createCurrencyLabel(netPay, VALUE_COLOR);
-
-
 
         // Add to payroll details panel
         payrollDetailsPanel.add(grossLabel);
