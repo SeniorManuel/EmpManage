@@ -5,7 +5,7 @@ import java.awt.*;
 public class Gui extends JFrame {
     JLabel fname, lname, pos, mrate;
     JTextField tfname, tlname, tpos, tmrate;
-    JButton add, update, delete, genResuslts, payResults, present;
+    JButton add, update, delete, generateReports, payResults, present;
     DefaultTableModel dtable;
     JTable table;
     GridBagLayout layout;
@@ -25,7 +25,7 @@ public class Gui extends JFrame {
         add = new JButton("Add Employee");
         update = new JButton("Update Employee");
         delete = new JButton("Delete Employee");
-        genResuslts = new JButton("Generate Results");
+        generateReports = new JButton("Generate Reports");
         payResults = new JButton("Calculate Payroll");
         present = new JButton("Mark Attendance");
 
@@ -33,11 +33,11 @@ public class Gui extends JFrame {
         add.setPreferredSize(bSize);
         update.setPreferredSize(bSize);
         delete.setPreferredSize(bSize);
-        genResuslts.setPreferredSize(bSize);
+        generateReports.setPreferredSize(bSize);
         payResults.setPreferredSize(bSize);
         present.setPreferredSize(bSize);
 
-        // Updated to use "Total Present Days" instead of days_worked
+
         dtable = new DefaultTableModel(new Object[]{"ID", "Firstname", "Lastname", "Position", "Rate", "Total Present Days"}, 0);
         table = new JTable(dtable);
         table.setRowHeight(20);
@@ -63,7 +63,7 @@ public class Gui extends JFrame {
         addP(panActions, add, 0, 0, 2, 1);
         addP(panActions, present, 2, 0, 2, 1);
         addP(panActions, payResults, 0, 1, 2, 1);
-        addP(panActions, genResuslts, 2, 1, 2, 1);
+        addP(panActions, generateReports, 2, 1, 2, 1);
         add(mainPanel, panActions, 0, 1, 4, 1);
 
         JPanel panTable = new JPanel(new BorderLayout());

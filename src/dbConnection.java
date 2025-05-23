@@ -33,8 +33,7 @@ public class dbConnection {
             JOptionPane.showMessageDialog(frame, "Failed to load data: " + e.getMessage());
         }
     }
-
-    // Insert or update payroll entry
+    
     public static void insertPayroll(String fname, String lname, String position, double gross,
                                      double sss, double philhealth, double pagibig, double incomeTax,
                                      double netPay, double monthlyRate) {

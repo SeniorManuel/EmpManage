@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
@@ -180,21 +181,25 @@ public class Main {
                     }
 
                     double monthlyRate = Double.parseDouble(monthRate);
-                    double dailyRate = monthlyRate / 22.0; // Assuming 22 working days per month
+                    double dailyRate = monthlyRate / 22.0;
                     double gross = dailyRate * workTotal;
 
-                    // Mandatory contributions based on Philippine regulations
-                    double sss = Math.min(gross, 30000) * 0.045; // SSS: 4.5% capped at ₱30,000
-                    double philhealth = Math.min(gross, 100000) * 0.05; // PhilHealth: 5% capped at ₱100,000 (updated for 2025)
-                    double pagibig = Math.min(gross * 0.02, 100); // Pag-IBIG: 2% capped at ₱100 contribution
 
-                    // Total mandatory contributions
-                    double totalContributions = sss + philhealth + pagibig;
+                    double sssEmployee = Math.min(gross, 35000) * 0.05;
+                    double sssEmployer = Math.min(gross, 35000) * 0.10;
+                    double philhealthTotal = Math.min(gross * 0.05, 2500);
+                    double philhealthEmployee = philhealthTotal / 2;
+                    double philhealthEmployer = philhealthTotal / 2;
+                    double pagibigEmployee = Math.min(gross * 0.02, 200);
+                    double pagibigEmployer = Math.min(gross * 0.02, 200);
 
-                    // Calculate taxable income
+
+                    double totalContributions = sssEmployee + philhealthEmployee + pagibigEmployee;
+
+
                     double taxableIncome = gross - totalContributions;
 
-                    // Income tax based on Philippine TRAIN Law (2025 monthly tax brackets)
+
                     double incomeTax;
                     if (taxableIncome <= 20833) {
                         incomeTax = 0;
@@ -210,12 +215,39 @@ public class Main {
                         incomeTax = 183541.80 + (taxableIncome - 666667) * 0.35;
                     }
 
-                    // Calculate net pay
+
                     double netPay = gross - totalContributions - incomeTax;
 
-                    // Display results and save to database
-                    new payResults(fname, lname, position, gross, sss, philhealth, pagibig, incomeTax, netPay);
-                    dbConnection.insertPayroll(fname, lname, position, gross, sss, philhealth, pagibig, incomeTax, netPay, monthlyRate);
+
+                    if (sssEmployee < 250 || philhealthEmployee < 250 || pagibigEmployee < 0) {
+                        JOptionPane.showMessageDialog(null, "Compliance Warning: Contributions are below minimum thresholds!");
+                    }
+
+
+                    new payResults(fname, lname, position, gross, sssEmployee, philhealthEmployee, pagibigEmployee, incomeTax, netPay);
+                    dbConnection.insertPayroll(fname, lname, position, gross, sssEmployee, philhealthEmployee, pagibigEmployee, incomeTax, netPay, monthlyRate);
+
+
+                    String payslip = "Payslip for " + fname + " " + lname + "\n" +
+                            "Position: " + position + "\n" +
+                            "Gross Pay: ₱" + String.format("%.2f", gross) + "\n" +
+                            "Deductions:\n" +
+                            "  SSS: ₱" + String.format("%.2f", sssEmployee) + "\n" +
+                            "  PhilHealth: ₱" + String.format("%.2f", philhealthEmployee) + "\n" +
+                            "  Pag-IBIG: ₱" + String.format("%.2f", pagibigEmployee) + "\n" +
+                            "  Withholding Tax: ₱" + String.format("%.2f", incomeTax) + "\n" +
+                            "Net Pay: ₱" + String.format("%.2f", netPay);
+                    JOptionPane.showMessageDialog(null, payslip);
+
+
+                    LocalDate today = LocalDate.now();
+                    int dayOfMonth = today.getDayOfMonth();
+                    if (dayOfMonth >= 10) {
+                        JOptionPane.showMessageDialog(null, "Reminder: BIR and PhilHealth/Pag-IBIG remittances are due by the 10th of this month!");
+                    }
+                    if (dayOfMonth >= 15) {
+                        JOptionPane.showMessageDialog(null, "Reminder: SSS remittances are due by the 15th of this month!");
+                    }
 
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Invalid number format in Monthly Rate or Total Present Days.");
@@ -269,6 +301,40 @@ public class Main {
                     });
                 } else {
                     JOptionPane.showMessageDialog(frame, "Select an employee to mark attendance.");
+                }
+            }
+        });
+
+
+        frame.generateReports.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    ReportGenerator generator = new ReportGenerator();
+                    String birReport = generator.generateBIRReport();
+                    String sssReport = generator.generateSSSReport();
+                    String philhealthReport = generator.generatePhilHealthReport();
+                    String pagibigReport = generator.generatePagIBIGReport();
+
+                    String combinedReport = "BIR Report:\n" + birReport + "\n\n" +
+                            "SSS Report:\n" + sssReport + "\n\n" +
+                            "PhilHealth Report:\n" + philhealthReport + "\n\n" +
+                            "Pag-IBIG Report:\n" + pagibigReport;
+                    JTextArea textArea = new JTextArea(combinedReport);
+                    textArea.setEditable(false);
+                    JScrollPane scrollPane = new JScrollPane(textArea);
+                    scrollPane.setPreferredSize(new java.awt.Dimension(600, 400));
+                    JOptionPane.showMessageDialog(frame, scrollPane, "Government-Mandated Reports", JOptionPane.INFORMATION_MESSAGE);
+
+                    String form2316 = generator.generateBIRForm2316();
+                    JTextArea form2316Area = new JTextArea(form2316);
+                    form2316Area.setEditable(false);
+                    JScrollPane form2316Scroll = new JScrollPane(form2316Area);
+                    form2316Scroll.setPreferredSize(new java.awt.Dimension(600, 400));
+                    JOptionPane.showMessageDialog(frame, form2316Scroll, "BIR Form 2316 (Year-End)", JOptionPane.INFORMATION_MESSAGE);
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, "Error generating reports: " + ex.getMessage());
                 }
             }
         });
