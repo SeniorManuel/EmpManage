@@ -153,6 +153,12 @@ public class Main {
             }
         });
 
+        frame.genResuslts.addActionListener(e -> {
+            complianceRep reportWindow = new complianceRep();
+            reportWindow.setVisible(true);
+        });
+
+
         frame.payResults.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -216,4 +222,3 @@ public class Main {
     }
 }
 
-//No doubling of employee name
