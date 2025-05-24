@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
@@ -125,7 +126,7 @@ public class Main {
                             payrollStmt.setString(1, fname);
                             payrollStmt.setString(2, lname);
                             payrollStmt.executeUpdate();
-                            String attendanceSQL = "DELETE FROM attendance WHERE firstname = ? AND lastname = ?";
+                            String attendanceSQL = "DELETE FROM attendance WHERE fname = ? AND lname = ?";
                             PreparedStatement attendanceStmt = conn.prepareStatement(attendanceSQL);
                             attendanceStmt.setString(1, fname);
                             attendanceStmt.setString(2, lname);
@@ -155,7 +156,7 @@ public class Main {
                 int selectedRow = frame.table.getSelectedRow();
 
                 if (selectedRow == -1) {
-                    JOptionPane.showMessageDialog(frame, "Please select an employee from the table.");
+                    JOptionPane.showMessageDialog(null, "Please select an employee from the table.");
                     return;
                 }
 
@@ -169,13 +170,13 @@ public class Main {
                     String monthRate = frame.table.getValueAt(selectedRow, 4).toString();
 
                     if (totalPresentDays.isEmpty() || monthRate.isEmpty()) {
-                        JOptionPane.showMessageDialog(frame, "Monthly Rate or Total Present Days field is empty.");
+                        JOptionPane.showMessageDialog(null, "Monthly Rate or Total Present Days field is empty.");
                         return;
                     }
 
                     int workTotal = Integer.parseInt(totalPresentDays);
                     if (workTotal <= 0) {
-                        JOptionPane.showMessageDialog(frame, "Total worked days must be greater than zero. Please mark attendance.");
+                        JOptionPane.showMessageDialog(null, "Total worked days must be greater than zero. Please mark attendance.");
                         return;
                     }
 
@@ -183,11 +184,12 @@ public class Main {
                     double dailyRate = monthlyRate / 22.0;
                     double gross = dailyRate * workTotal;
 
-                    double sss = Math.min(gross, 30000) * 0.045;
-                    double philhealth = Math.min(gross, 100000) * 0.05;
-                    double pagibig = Math.min(gross * 0.02, 100);
+                    double sssEmployee = Math.min(gross, 35000) * 0.05;
+                    double philhealthTotal = Math.min(gross * 0.05, 2500);
+                    double philhealthEmployee = philhealthTotal / 2;
+                    double pagibigEmployee = Math.min(gross * 0.02, 200);
 
-                    double totalContributions = sss + philhealth + pagibig;
+                    double totalContributions = sssEmployee + philhealthEmployee + pagibigEmployee;
                     double taxableIncome = gross - totalContributions;
 
                     double incomeTax;
@@ -207,13 +209,17 @@ public class Main {
 
                     double netPay = gross - totalContributions - incomeTax;
 
-                    new payResults(fname, lname, position, gross, sss, philhealth, pagibig, incomeTax, netPay);
-                    dbConnection.insertPayroll(fname, lname, position, gross, sss, philhealth, pagibig, incomeTax, netPay, monthlyRate);
+                    if (sssEmployee < 250 || philhealthEmployee < 250 || pagibigEmployee < 0) {
+                        JOptionPane.showMessageDialog(null, "Compliance Warning: Contributions are below minimum thresholds!");
+                    }
+
+                    new payResults(fname, lname, position, gross, sssEmployee, philhealthEmployee, pagibigEmployee, incomeTax, netPay);
+                    dbConnection.insertPayroll(fname, lname, position, gross, sssEmployee, philhealthEmployee, pagibigEmployee, incomeTax, netPay, monthlyRate);
 
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(frame, "Invalid number format in Monthly Rate or Total Present Days.");
+                    JOptionPane.showMessageDialog(null, "Invalid number format in Monthly Rate or Total Present Days.");
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame, "An error occurred: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage());
                 }
             }
         });
@@ -237,25 +243,13 @@ public class Main {
                                 mp.totalWorked = total;
 
                                 dbConnection.markAttendance(fname, lname, worked, absent, total, frame);
-
-                                try (Connection conn = dbConnection.getConnection()) {
-                                    String syncQuery = "UPDATE employees e " +
-                                            "JOIN attendance a ON e.firstname = a.firstname AND e.lastname = a.lastname " +
-                                            "SET e.days_worked = a.totalWorkedDays";
-                                    PreparedStatement syncStmt = conn.prepareStatement(syncQuery);
-                                    syncStmt.executeUpdate();
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                    JOptionPane.showMessageDialog(frame, "Error syncing days_worked: " + ex.getMessage());
-                                }
-
-                                JOptionPane.showMessageDialog(frame, "Attendance submitted or updated.");
+                                JOptionPane.showMessageDialog(null, "Attendance submitted or updated.");
                                 mp.dispose();
                             } catch (NumberFormatException ex) {
-                                JOptionPane.showMessageDialog(frame, "Please enter valid numbers for worked and absent days.");
+                                JOptionPane.showMessageDialog(null, "Please enter valid numbers for worked and absent days.");
                             } catch (Exception ex) {
                                 ex.printStackTrace();
-                                JOptionPane.showMessageDialog(frame, "Error submitting attendance: " + ex.getMessage());
+                                JOptionPane.showMessageDialog(null, "Error submitting attendance: " + ex.getMessage());
                             }
                         }
                     });
@@ -268,19 +262,47 @@ public class Main {
                                 int total = worked - absent;
                                 mp.totalLabel.setText("Total Worked Days: " + total);
                             } catch (NumberFormatException ex) {
-                                JOptionPane.showMessageDialog(frame, "Enter valid numbers for worked and absent days.");
+                                JOptionPane.showMessageDialog(null, "Enter valid numbers for worked and absent days.");
                             }
                         }
                     });
-
                 } else {
                     JOptionPane.showMessageDialog(frame, "Select an employee to mark attendance.");
                 }
             }
         });
 
+        frame.genResults.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    ReportGenerator generator = new ReportGenerator();
+                    String birReport = generator.generateBIRReport();
+                    String sssReport = generator.generateSSSReport();
+                    String philhealthReport = generator.generatePhilHealthReport();
+                    String pagibigReport = generator.generatePagIBIGReport();
+
+                    String combinedReport = "BIR Report:\n" + birReport + "\n\n" +
+                            "SSS Report:\n" + sssReport + "\n\n" +
+                            "PhilHealth Report:\n" + philhealthReport + "\n\n" +
+                            "Pag-IBIG Report:\n" + pagibigReport;
+                    JTextArea textArea = new JTextArea(combinedReport);
+                    textArea.setEditable(false);
+                    JScrollPane scrollPane = new JScrollPane(textArea);
+                    scrollPane.setPreferredSize(new java.awt.Dimension(600, 400));
+                    JOptionPane.showMessageDialog(frame, scrollPane, "Government-Mandated Reports", JOptionPane.INFORMATION_MESSAGE);
+
+                    String form2316 = generator.generateBIRForm2316();
+                    JTextArea form2316Area = new JTextArea(form2316);
+                    form2316Area.setEditable(false);
+                    JScrollPane form2316Scroll = new JScrollPane(form2316Area);
+                    form2316Scroll.setPreferredSize(new java.awt.Dimension(600, 400));
+                    JOptionPane.showMessageDialog(frame, form2316Scroll, "BIR Form 2316 (Year-End)", JOptionPane.INFORMATION_MESSAGE);
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, "Error generating reports: " + ex.getMessage());
+                }
+            }
+        });
     }
 }
-
-//id in the database should be followed by other tables
-//theres no error handling in the calculate payroll if the user update the attendance

@@ -5,7 +5,7 @@ import java.awt.*;
 public class Gui extends JFrame {
     JLabel fname, lname, pos, mrate, dwork;
     JTextField tfname, tlname, tpos, tmrate, tdwork;
-    JButton add, update, delete, genResuslts, payResults, present;
+    JButton add, update, delete, genResults, payResults, present;
     DefaultTableModel dtable;
     JTable table;
     GridBagLayout layout;
@@ -27,7 +27,7 @@ public class Gui extends JFrame {
         add = new JButton("Add Employee");
         update = new JButton("Update Employee");
         delete = new JButton("Delete Employee");
-        genResuslts = new JButton("Generate Results");
+        genResults = new JButton("Generate Results");
         payResults = new JButton("Calculate Payroll");
         present = new JButton("Mark Attendance");
 
@@ -35,7 +35,7 @@ public class Gui extends JFrame {
         add.setPreferredSize(bSize);
         update.setPreferredSize(bSize);
         delete.setPreferredSize(bSize);
-        genResuslts.setPreferredSize(bSize);
+        genResults.setPreferredSize(bSize);
         payResults.setPreferredSize(bSize);
         present.setPreferredSize(bSize);
 
@@ -70,7 +70,7 @@ public class Gui extends JFrame {
         addP(panActions, add, 0, 0, 2, 1);
         addP(panActions, present, 2, 0, 2, 1);
         addP(panActions, payResults, 0, 1, 2, 1);
-        addP(panActions, genResuslts, 2, 1, 2, 1);
+        addP(panActions, genResults, 2, 1, 2, 1);
         add(mainPanel, panActions, 0, 1, 4, 1);
 
         JPanel panTable = new JPanel(new BorderLayout());
