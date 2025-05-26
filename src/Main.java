@@ -126,7 +126,7 @@ public class Main {
                             payrollStmt.setString(1, fname);
                             payrollStmt.setString(2, lname);
                             payrollStmt.executeUpdate();
-                            String attendanceSQL = "DELETE FROM attendance WHERE fname = ? AND lname = ?";
+                            String attendanceSQL = "DELETE FROM attendance WHERE firstname = ? AND lastname = ?";
                             PreparedStatement attendanceStmt = conn.prepareStatement(attendanceSQL);
                             attendanceStmt.setString(1, fname);
                             attendanceStmt.setString(2, lname);
@@ -306,3 +306,10 @@ public class Main {
         });
     }
 }
+
+//SQL
+//sql id numbers are not in sync
+//no error handling in attendace if employee updated
+//no error handling in attendance sql employee keeps doubling if employee is updated
+//no error handling in payroll if employee rate is updated
+//no error handling in payroll sql employee keeps doubling if employee is updated

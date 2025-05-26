@@ -3,8 +3,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class Gui extends JFrame {
-    JLabel fname, lname, pos, mrate, dwork;
-    JTextField tfname, tlname, tpos, tmrate, tdwork;
+    JLabel fname, lname, pos, mrate;
+    JTextField tfname, tlname, tpos, tmrate;
     JButton add, update, delete, genResults, payResults, present;
     DefaultTableModel dtable;
     JTable table;
@@ -16,13 +16,11 @@ public class Gui extends JFrame {
         lname = new JLabel("Lastname:");
         pos = new JLabel("Position:");
         mrate = new JLabel("Monthly Rate:");
-        dwork = new JLabel("Days Work per Month:");
 
         tfname = new JTextField(12);
         tlname = new JTextField(12);
         tpos = new JTextField(12);
         tmrate = new JTextField(12);
-        tdwork = new JTextField(12);
 
         add = new JButton("Add Employee");
         update = new JButton("Update Employee");
@@ -61,8 +59,6 @@ public class Gui extends JFrame {
         addP(panDetails, tpos, 1, 1, 1, 1);
         addP(panDetails, mrate, 2, 1, 1, 1);
         addP(panDetails, tmrate, 3, 1, 1, 1);
-        addP(panDetails, dwork, 2, 2, 1, 1);
-        addP(panDetails, tdwork, 3, 2, 1, 1);
         add(mainPanel, panDetails, 0, 0, 4, 1);
 
         JPanel panActions = new JPanel(new GridBagLayout());
