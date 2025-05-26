@@ -3,10 +3,35 @@ import java.time.LocalDate;
 
 public class ReportGenerator {
 
+    public String generateBIRForm2316(String fname, String lname, String position, double gross, double sss, double philhealth, double pagibig, double incomeTax, double netPay) {
+        StringBuilder report = new StringBuilder();
+        report.append("BIR Form 2316 - Certificate of Compensation Payment/Tax Withheld\n");
+        report.append("Year: 2025\n");
+        report.append("Generated on: ").append(LocalDate.now().toString()).append("\n\n");
+
+        report.append("Employee: ").append(fname).append(" ").append(lname).append("\n");
+        report.append("Position: ").append(position).append("\n");
+        report.append(String.format("Total Compensation (Gross): ₱%.2f\n", gross));
+        report.append(String.format("Less: Non-Taxable Contributions\n"));
+        report.append(String.format("  SSS: ₱%.2f\n", sss));
+        report.append(String.format("  PhilHealth: ₱%.2f\n", philhealth));
+        report.append(String.format("  Pag-IBIG: ₱%.2f\n", pagibig));
+        double totalNonTaxable = sss + philhealth + pagibig;
+        report.append(String.format("Total Non-Taxable: ₱%.2f\n", totalNonTaxable));
+        double taxableIncome = gross - totalNonTaxable;
+        report.append(String.format("Taxable Income: ₱%.2f\n", taxableIncome));
+        report.append(String.format("Tax Withheld: ₱%.2f\n", incomeTax));
+        report.append(String.format("Net Pay After Tax: ₱%.2f\n", netPay));
+        report.append("----------------------------------------\n");
+
+        return report.toString();
+    }
+
+
     public String generateBIRReport() throws SQLException {
         StringBuilder report = new StringBuilder();
         report.append("BIR Form 1604-C - Annual Information Return of Income Taxes Withheld on Compensation\n");
-        report.append("Generated on: ").append(LocalDate.now()).append("\n\n");
+        report.append("Generated on: ").append(LocalDate.now().toString()).append("\n\n");
 
         double totalWithheldTax = 0;
         Connection conn = dbConnection.getConnection();
@@ -27,10 +52,11 @@ public class ReportGenerator {
         return report.toString();
     }
 
+
     public String generateSSSReport() throws SQLException {
         StringBuilder report = new StringBuilder();
         report.append("SSS Contribution Report\n");
-        report.append("Generated on: ").append(LocalDate.now()).append("\n\n");
+        report.append("Generated on: ").append(LocalDate.now().toString()).append("\n\n");
 
         double totalEmployeeShare = 0;
         double totalEmployerShare = 0;
@@ -60,7 +86,7 @@ public class ReportGenerator {
     public String generatePhilHealthReport() throws SQLException {
         StringBuilder report = new StringBuilder();
         report.append("PhilHealth Contribution Report\n");
-        report.append("Generated on: ").append(LocalDate.now()).append("\n\n");
+        report.append("Generated on: ").append(LocalDate.now().toString()).append("\n\n");
 
         double totalEmployeeShare = 0;
         double totalEmployerShare = 0;
@@ -91,7 +117,7 @@ public class ReportGenerator {
     public String generatePagIBIGReport() throws SQLException {
         StringBuilder report = new StringBuilder();
         report.append("Pag-IBIG Contribution Report\n");
-        report.append("Generated on: ").append(LocalDate.now()).append("\n\n");
+        report.append("Generated on: ").append(LocalDate.now().toString()).append("\n\n");
 
         double totalEmployeeShare = 0;
         double totalEmployerShare = 0;
@@ -113,48 +139,6 @@ public class ReportGenerator {
 
         report.append(String.format("\nTotal Employee Share: ₱%.2f", totalEmployeeShare));
         report.append(String.format("\nTotal Employer Share: ₱%.2f", totalEmployerShare));
-        conn.close();
-        return report.toString();
-    }
-
-    public String generateBIRForm2316() throws SQLException {
-        StringBuilder report = new StringBuilder();
-        report.append("BIR Form 2316 - Certificate of Compensation Payment/Tax Withheld\n");
-        report.append("Year: 2025\n");
-        report.append("Generated on: ").append(LocalDate.now()).append("\n\n");
-
-        Connection conn = dbConnection.getConnection();
-        String query = "SELECT fname, lname, position, gross, sss, philhealth, pagibig, incomeTax, netPay FROM payroll";
-        PreparedStatement stmt = conn.prepareStatement(query);
-        ResultSet rs = stmt.executeQuery();
-
-        while (rs.next()) {
-            String fname = rs.getString("fname");
-            String lname = rs.getString("lname");
-            String position = rs.getString("position");
-            double gross = rs.getDouble("gross");
-            double sss = rs.getDouble("sss");
-            double philhealth = rs.getDouble("philhealth");
-            double pagibig = rs.getDouble("pagibig");
-            double incomeTax = rs.getDouble("incomeTax");
-            double netPay = rs.getDouble("netPay");
-
-            report.append("Employee: ").append(fname).append(" ").append(lname).append("\n");
-            report.append("Position: ").append(position).append("\n");
-            report.append(String.format("Total Compensation (Gross): ₱%.2f\n", gross));
-            report.append(String.format("Less: Non-Taxable Contributions\n"));
-            report.append(String.format("  SSS: ₱%.2f\n", sss));
-            report.append(String.format("  PhilHealth: ₱%.2f\n", philhealth));
-            report.append(String.format("  Pag-IBIG: ₱%.2f\n", pagibig));
-            double totalNonTaxable = sss + philhealth + pagibig;
-            report.append(String.format("Total Non-Taxable: ₱%.2f\n", totalNonTaxable));
-            double taxableIncome = gross - totalNonTaxable;
-            report.append(String.format("Taxable Income: ₱%.2f\n", taxableIncome));
-            report.append(String.format("Tax Withheld: ₱%.2f\n", incomeTax));
-            report.append(String.format("Net Pay After Tax: ₱%.2f\n", netPay));
-            report.append("----------------------------------------\n");
-        }
-
         conn.close();
         return report.toString();
     }

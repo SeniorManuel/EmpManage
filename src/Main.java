@@ -1,8 +1,8 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
-import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
@@ -228,19 +228,7 @@ public class Main {
                     dbConnection.insertPayroll(fname, lname, position, gross, sssEmployee, philhealthEmployee, pagibigEmployee, incomeTax, netPay, monthlyRate);
 
 
-                    String payslip = "Payslip for " + fname + " " + lname + "\n" +
-                            "Position: " + position + "\n" +
-                            "Gross Pay: ₱" + String.format("%.2f", gross) + "\n" +
-                            "Deductions:\n" +
-                            "  SSS: ₱" + String.format("%.2f", sssEmployee) + "\n" +
-                            "  PhilHealth: ₱" + String.format("%.2f", philhealthEmployee) + "\n" +
-                            "  Pag-IBIG: ₱" + String.format("%.2f", pagibigEmployee) + "\n" +
-                            "  Withholding Tax: ₱" + String.format("%.2f", incomeTax) + "\n" +
-                            "Net Pay: ₱" + String.format("%.2f", netPay);
-                    JOptionPane.showMessageDialog(null, payslip);
-
-
-                    LocalDate today = LocalDate.now();
+                    java.time.LocalDate today = java.time.LocalDate.now();
                     int dayOfMonth = today.getDayOfMonth();
                     if (dayOfMonth >= 10) {
                         JOptionPane.showMessageDialog(null, "Reminder: BIR and PhilHealth/Pag-IBIG remittances are due by the 10th of this month!");
@@ -309,32 +297,114 @@ public class Main {
         frame.generateReports.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int selectedRow = frame.table.getSelectedRow();
+
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(null, "Please select an employee from the table.");
+                    return;
+                }
+
                 try {
+                    String fname = frame.table.getValueAt(selectedRow, 1).toString();
+                    String lname = frame.table.getValueAt(selectedRow, 2).toString();
+                    String position = frame.table.getValueAt(selectedRow, 3).toString();
+                    String totalPresentDays = frame.table.getValueAt(selectedRow, 5).toString();
+                    String monthRate = frame.table.getValueAt(selectedRow, 4).toString();
+
+                    if (totalPresentDays.isEmpty() || monthRate.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "Monthly Rate or Total Present Days field is empty.");
+                        return;
+                    }
+
+                    int workTotal = Integer.parseInt(totalPresentDays);
+                    double monthlyRate = Double.parseDouble(monthRate);
+                    double dailyRate = monthlyRate / 22.0;
+                    double gross = dailyRate * workTotal;
+
+
+                    double sssEmployee = Math.min(gross, 35000) * 0.05;
+                    double philhealthTotal = Math.min(gross * 0.05, 2500);
+                    double philhealthEmployee = philhealthTotal / 2;
+                    double pagibigEmployee = Math.min(gross * 0.02, 200);
+
+                    double totalContributions = sssEmployee + philhealthEmployee + pagibigEmployee;
+                    double taxableIncome = gross - totalContributions;
+                    double incomeTax = taxableIncome <= 20833 ? 0 : taxableIncome <= 33333 ? (taxableIncome - 20833) * 0.15 :
+                            taxableIncome <= 66667 ? 1875 + (taxableIncome - 33333) * 0.20 :
+                                    taxableIncome <= 166667 ? 8541.80 + (taxableIncome - 66667) * 0.25 :
+                                            taxableIncome <= 666667 ? 33541.80 + (taxableIncome - 166667) * 0.30 :
+                                                    183541.80 + (taxableIncome - 666667) * 0.35;
+                    double netPay = gross - totalContributions - incomeTax;
+
                     ReportGenerator generator = new ReportGenerator();
                     String birReport = generator.generateBIRReport();
                     String sssReport = generator.generateSSSReport();
                     String philhealthReport = generator.generatePhilHealthReport();
                     String pagibigReport = generator.generatePagIBIGReport();
+                    String birForm2316 = generator.generateBIRForm2316(fname, lname, position, gross, sssEmployee, philhealthEmployee, pagibigEmployee, incomeTax, netPay);
+                    String payslip = "Payslip for " + fname + " " + lname + "\n" +
+                            "Position: " + position + "\n" +
+                            "----------------------------------------\n" +
+                            String.format("%-20s ₱%10.2f\n", "Gross Pay:", gross) +
+                            "Deductions:\n" +
+                            String.format("%-20s ₱%10.2f\n", "  SSS:", sssEmployee) +
+                            String.format("%-20s ₱%10.2f\n", "  PhilHealth:", philhealthEmployee) +
+                            String.format("%-20s ₱%10.2f\n", "  Pag-IBIG:", pagibigEmployee) +
+                            String.format("%-20s ₱%10.2f\n", "  Withholding Tax:", incomeTax) +
+                            "----------------------------------------\n" +
+                            String.format("%-20s ₱%10.2f\n", "Net Pay:", netPay);
 
-                    String combinedReport = "BIR Report:\n" + birReport + "\n\n" +
+
+                    String combinedMandatedReports = "========== Government Mandated Reports ==========\n\n" +
+                            "BIR Report:\n" + birReport + "\n\n" +
+                            "--------------------------------------------\n" +
                             "SSS Report:\n" + sssReport + "\n\n" +
+                            "--------------------------------------------\n" +
                             "PhilHealth Report:\n" + philhealthReport + "\n\n" +
-                            "Pag-IBIG Report:\n" + pagibigReport;
-                    JTextArea textArea = new JTextArea(combinedReport);
-                    textArea.setEditable(false);
-                    JScrollPane scrollPane = new JScrollPane(textArea);
-                    scrollPane.setPreferredSize(new java.awt.Dimension(600, 400));
-                    JOptionPane.showMessageDialog(frame, scrollPane, "Government-Mandated Reports", JOptionPane.INFORMATION_MESSAGE);
+                            "--------------------------------------------\n" +
+                            "Pag-IBIG Report:\n" + pagibigReport + "\n" +
+                            "=============================================\n";
 
-                    String form2316 = generator.generateBIRForm2316();
-                    JTextArea form2316Area = new JTextArea(form2316);
-                    form2316Area.setEditable(false);
-                    JScrollPane form2316Scroll = new JScrollPane(form2316Area);
-                    form2316Scroll.setPreferredSize(new java.awt.Dimension(600, 400));
-                    JOptionPane.showMessageDialog(frame, form2316Scroll, "BIR Form 2316 (Year-End)", JOptionPane.INFORMATION_MESSAGE);
 
+                    JFrame mandatedFrame = new JFrame("Government Mandated Reports");
+                    JTextArea mandatedTextArea = new JTextArea(combinedMandatedReports);
+                    mandatedTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+                    mandatedTextArea.setEditable(false);
+                    JScrollPane mandatedScrollPane = new JScrollPane(mandatedTextArea);
+                    mandatedScrollPane.setPreferredSize(new Dimension(600, 500));
+                    mandatedFrame.add(mandatedScrollPane);
+                    mandatedFrame.pack();
+                    mandatedFrame.setLocation(100, 100);
+                    mandatedFrame.setVisible(true);
+
+
+                    JFrame birFormFrame = new JFrame("BIR Form 2316 - " + fname + " " + lname);
+                    JTextArea birFormTextArea = new JTextArea(birForm2316);
+                    birFormTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+                    birFormTextArea.setEditable(false);
+                    JScrollPane birFormScrollPane = new JScrollPane(birFormTextArea);
+                    birFormScrollPane.setPreferredSize(new Dimension(600, 400));
+                    birFormFrame.add(birFormScrollPane);
+                    birFormFrame.pack();
+                    birFormFrame.setLocation(750, 100);
+                    birFormFrame.setVisible(true);
+
+
+                    JFrame payslipFrame = new JFrame("Payslip - " + fname + " " + lname);
+                    JTextArea payslipTextArea = new JTextArea(payslip);
+                    payslipTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+                    payslipTextArea.setEditable(false);
+                    JScrollPane payslipScrollPane = new JScrollPane(payslipTextArea);
+                    payslipScrollPane.setPreferredSize(new Dimension(400, 300));
+                    payslipFrame.add(payslipScrollPane);
+                    payslipFrame.pack();
+                    payslipFrame.setLocation(750, 550);
+                    payslipFrame.setVisible(true);
+
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Invalid number format in Monthly Rate or Total Present Days.");
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame, "Error generating reports: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "Error generating reports: " + ex.getMessage());
                 }
             }
         });
