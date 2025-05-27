@@ -44,6 +44,7 @@ public class Gui extends JFrame {
             }
         };
         table = new JTable(dtable);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         JPanel mainPanel = new JPanel();
         layout = new GridBagLayout();
@@ -79,7 +80,7 @@ public class Gui extends JFrame {
         addP(panBottom, update, 0, 0, 2, 1);
         addP(panBottom, delete, 2, 0, 2, 1);
         add(mainPanel, panBottom, 0, 3, 4, 1);
-        
+
         JScrollPane scrollPane = new JScrollPane(mainPanel,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);

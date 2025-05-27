@@ -6,15 +6,15 @@ public class dbConnection {
     public static Connection getConnection() throws SQLException {
         String url = "jdbc:mysql://localhost:3306/emp_manage";
         String user = "root";
-        String pass = "EF2120762";
+        String pass = "usls123";
         return DriverManager.getConnection(url, user, pass);
     }
 
     public static void loadEmployees(Gui frame) {
         try (Connection conn = getConnection()) {
             frame.dtable.setRowCount(0);
-            String query = "SELECT e.id, e.firstname, e.lastname, e.position, e.rate, COALESCE(a.totalworkedDays, 0) AS total_present_days " +
-                    "FROM employees e LEFT JOIN attendance a ON e.firstname = a.firstname AND e.lastname = a.lastname";
+            String query = "SELECT e.id, e.firstname, e.lastname, e.position, e.rate, COALESCE(a.totalWorkedDays, 0) AS total_present_days " +
+                    "FROM employees e LEFT JOIN attendance a ON e.id = a.employee_id";
             PreparedStatement stmt = conn.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
 
@@ -86,16 +86,16 @@ public class dbConnection {
         }
     }
 
-
     public static void markAttendance(int employeeId, String firstName, String lastName, int work, int absent, int total, Gui frame) {
+        System.out.println("markAttendance called for employee ID: " + employeeId);
         try (Connection conn = getConnection()) {
-
             String check = "SELECT COUNT(*) FROM attendance WHERE employee_id = ?";
             PreparedStatement checkStmt = conn.prepareStatement(check);
             checkStmt.setInt(1, employeeId);
             ResultSet rs = checkStmt.executeQuery();
             rs.next();
             int count = rs.getInt(1);
+            System.out.println("Attendance record exists: " + (count > 0));
 
             if (count > 0) {
                 String update = "UPDATE attendance SET firstName = ?, lastName = ?, workDays = ?, daysAbsent = ?, totalWorkedDays = ? WHERE employee_id = ?";
@@ -122,10 +122,35 @@ public class dbConnection {
             }
 
             loadEmployees(frame);
-
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(frame, "Failed to mark attendance: " + e.getMessage());
         }
+    }
+
+    public static void insertLeave(int employeeId, String leaveType, String startDate, String endDate, String status) {
+        System.out.println("insertLeave called for employee ID: " + employeeId);
+        try (Connection conn = getConnection()) {
+            String sql = "INSERT INTO leaves (employee_id, leave_type, start_date, end_date, status) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, employeeId);
+            stmt.setString(2, leaveType);
+            stmt.setString(3, startDate);
+            stmt.setString(4, endDate);
+            stmt.setString(5, status);
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error inserting leave: " + ex.getMessage());
+        }
+    }
+
+    public static ResultSet getLeaves(int employeeId) throws SQLException {
+        System.out.println("getLeaves called for employee ID: " + employeeId);
+        Connection conn = getConnection();
+        String sql = "SELECT leave_type, start_date, end_date, status FROM leaves WHERE employee_id = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, employeeId);
+        return stmt.executeQuery();
     }
 }

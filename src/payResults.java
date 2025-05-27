@@ -28,7 +28,6 @@ public class payResults extends JFrame {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        // Employee Info
         JPanel infoPanel = new JPanel(new GridLayout(4, 2, 10, 10));
         infoPanel.setBorder(BorderFactory.createTitledBorder("Employee Information"));
 
@@ -47,7 +46,6 @@ public class payResults extends JFrame {
         infoPanel.add(posLabel);
         infoPanel.add(posVal);
 
-        // Payroll Breakdown
         JPanel payrollPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         payrollPanel.setBorder(BorderFactory.createTitledBorder("Payroll Breakdown"));
 
@@ -78,7 +76,6 @@ public class payResults extends JFrame {
         payrollPanel.add(netPayLabel);
         payrollPanel.add(netPayVal);
 
-        // OK Button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         okButton = new JButton("OK");
         buttonPanel.add(okButton);
@@ -90,7 +87,6 @@ public class payResults extends JFrame {
             }
         });
 
-        // Add to main panel
         mainPanel.add(infoPanel);
         mainPanel.add(Box.createVerticalStrut(15));
         mainPanel.add(payrollPanel);

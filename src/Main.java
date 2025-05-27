@@ -233,62 +233,112 @@ public class Main {
 
         frame.present.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = frame.table.getSelectedRow();
-                if (selectedRow != -1) {
-                    int employeeId = Integer.parseInt(frame.table.getValueAt(selectedRow, 0).toString());
-                    int selectedId = (int) frame.table.getValueAt(selectedRow, 0);
-                    if (selectedId == updatedEmployeeId[0]) {
-                        JOptionPane.showMessageDialog(frame,
-                                "This employee's record was recently updated.",
-                                "Update Notice",
-                                JOptionPane.INFORMATION_MESSAGE);
-                        updatedEmployeeId[0] = -1;
+                System.out.println("Mark Attendance button clicked");
+                try {
+                    int selectedRow = frame.table.getSelectedRow();
+                    System.out.println("Selected row: " + selectedRow);
+                    if (selectedRow != -1) {
+                        int employeeId = Integer.parseInt(frame.table.getValueAt(selectedRow, 0).toString());
+                        int selectedId = (int) frame.dtable.getValueAt(selectedRow, 0);
+                        System.out.println("Employee ID: " + employeeId);
+                        if (selectedId == updatedEmployeeId[0]) {
+                            JOptionPane.showMessageDialog(frame,
+                                    "This employee's record was recently updated.",
+                                    "Update Notice",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                            updatedEmployeeId[0] = -1;
+                        }
+
+                        String fname = frame.table.getValueAt(selectedRow, 1).toString();
+                        String lname = frame.table.getValueAt(selectedRow, 2).toString();
+                        String fullName = " " + fname + " " + lname;
+                        System.out.println("Opening markPresent for: " + fullName);
+
+                        SwingUtilities.invokeLater(() -> {
+                            markPresent mp = new markPresent(fullName, employeeId);
+                            System.out.println("markPresent frame created");
+                            mp.setLocationRelativeTo(frame);
+                            mp.setVisible(true);
+                            System.out.println("markPresent frame set visible");
+
+                            mp.submit.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    System.out.println("Submit button clicked in markPresent");
+                                    try {
+                                        int worked = Integer.parseInt(mp.workField.getText());
+                                        int absent = Integer.parseInt(mp.absentField.getText());
+                                        int total = worked - absent;
+                                        mp.totalWorked = total;
+
+                                        dbConnection.markAttendance(employeeId, fname, lname, worked, absent, total, frame);
+                                        mp.dispose();
+                                    } catch (NumberFormatException ex) {
+                                        JOptionPane.showMessageDialog(mp, "Please enter valid numbers for worked and absent days.");
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                        JOptionPane.showMessageDialog(mp, "Error submitting attendance: " + ex.getMessage());
+                                    }
+                                }
+                            });
+
+                            mp.calculate.addActionListener(new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    System.out.println("Calculate button clicked in markPresent");
+                                    try {
+                                        int worked = Integer.parseInt(mp.workField.getText());
+                                        int absent = Integer.parseInt(mp.absentField.getText());
+                                        int total = worked - absent;
+                                        mp.totalLabel.setText("Total Worked Days: " + total);
+                                    } catch (NumberFormatException ex) {
+                                        JOptionPane.showMessageDialog(mp, "Enter valid numbers for worked and absent days.");
+                                    }
+                                }
+                            });
+
+                            mp.manageLeaves.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    System.out.println("Manage Leaves button clicked in markPresent");
+                                    mp.loadExistingLeaves();
+                                }
+                            });
+
+                            mp.submitLeave.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    System.out.println("Submit Leave button clicked in markPresent");
+                                    String leaveType = mp.leaveTypeField.getText().trim();
+                                    String startDate = mp.startDateField.getText().trim();
+                                    String endDate = mp.endDateField.getText().trim();
+                                    String status = (String) mp.statusCombo.getSelectedItem();
+
+                                    if (leaveType.isEmpty() || startDate.isEmpty() || endDate.isEmpty()) {
+                                        JOptionPane.showMessageDialog(mp, "All fields are required.");
+                                        return;
+                                    }
+
+                                    try {
+                                        dbConnection.insertLeave(employeeId, leaveType, startDate, endDate, status);
+                                        JOptionPane.showMessageDialog(mp, "Leave request submitted successfully.");
+                                        mp.leaveTypeField.setText("");
+                                        mp.startDateField.setText("YYYY-MM-DD");
+                                        mp.endDateField.setText("YYYY-MM-DD");
+                                        mp.loadExistingLeaves();
+                                    } catch (Exception ex) {
+                                        JOptionPane.showMessageDialog(mp, "Error submitting leave: " + ex.getMessage());
+                                    }
+                                }
+                            });
+                        });
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Select an employee to mark attendance.");
                     }
-                    
-                    String fname = frame.table.getValueAt(selectedRow, 1).toString();
-                    String lname = frame.table.getValueAt(selectedRow, 2).toString();
-                    String fullName = " " + fname + " " + lname;
-
-                    markPresent mp = new markPresent(fullName);
-
-                    mp.submit.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            try {
-                                int worked = Integer.parseInt(mp.workField.getText());
-                                int absent = Integer.parseInt(mp.absentField.getText());
-                                int total = worked - absent;
-                                mp.totalWorked = total;
-
-                                dbConnection.markAttendance(employeeId, fname, lname, worked, absent, total, frame);
-                                mp.dispose();
-                            } catch (NumberFormatException ex) {
-                                JOptionPane.showMessageDialog(null, "Please enter valid numbers for worked and absent days.");
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                                JOptionPane.showMessageDialog(null, "Error submitting attendance: " + ex.getMessage());
-                            }
-                        }
-                    });
-
-                    mp.calculate.addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            try {
-                                int worked = Integer.parseInt(mp.workField.getText());
-                                int absent = Integer.parseInt(mp.absentField.getText());
-                                int total = worked - absent;
-                                mp.totalLabel.setText("Total Worked Days: " + total);
-                            } catch (NumberFormatException ex) {
-                                JOptionPane.showMessageDialog(null, "Enter valid numbers for worked and absent days.");
-                            }
-                        }
-                    });
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Select an employee to mark attendance.");
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(frame, "Error in Mark Attendance: " + ex.getMessage());
                 }
             }
         });
-
-
 
         frame.genResults.addActionListener(new ActionListener() {
             @Override
@@ -316,7 +366,6 @@ public class Main {
                     double monthlyRate = Double.parseDouble(monthRate);
                     double dailyRate = monthlyRate / 22.0;
                     double gross = dailyRate * workTotal;
-
 
                     double sssEmployee = Math.min(gross, 35000) * 0.05;
                     double philhealthTotal = Math.min(gross * 0.05, 2500);
