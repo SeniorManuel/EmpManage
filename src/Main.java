@@ -9,6 +9,8 @@ public class Main {
         Gui frame = new Gui();
         dbConnection.loadEmployees(frame);
 
+        final int[] updatedEmployeeId = { -1 };
+
         frame.add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,6 +78,9 @@ public class Main {
                             int id = (int) frame.dtable.getValueAt(selectedRow, 0);
                             stmt.setInt(5, id);
                             stmt.executeUpdate();
+
+                            updatedEmployeeId[0] = id;
+
                             conn.close();
 
                             frame.dtable.setValueAt(fget, selectedRow, 1);
@@ -117,20 +122,22 @@ public class Main {
                     if (confirm == JOptionPane.YES_OPTION) {
                         try {
                             Connection conn = dbConnection.getConnection();
+
+                            String attendanceSQL = "DELETE FROM attendance WHERE employee_id = ?";
+                            PreparedStatement attendanceStmt = conn.prepareStatement(attendanceSQL);
+                            attendanceStmt.setString(1, id);
+                            attendanceStmt.executeUpdate();
+
+                            String payrollSQL = "DELETE FROM payroll WHERE employee_id = ?";
+                            PreparedStatement payrollStmt = conn.prepareStatement(payrollSQL);
+                            payrollStmt.setString(1, id);
+                            payrollStmt.executeUpdate();
+
                             String sql = "DELETE FROM employees WHERE id = ?";
                             PreparedStatement stmt = conn.prepareStatement(sql);
                             stmt.setString(1, id);
                             int rowsDeleted = stmt.executeUpdate();
-                            String payrollSQL = "DELETE FROM payroll WHERE fname = ? AND lname = ?";
-                            PreparedStatement payrollStmt = conn.prepareStatement(payrollSQL);
-                            payrollStmt.setString(1, fname);
-                            payrollStmt.setString(2, lname);
-                            payrollStmt.executeUpdate();
-                            String attendanceSQL = "DELETE FROM attendance WHERE fname = ? AND lname = ?";
-                            PreparedStatement attendanceStmt = conn.prepareStatement(attendanceSQL);
-                            attendanceStmt.setString(1, fname);
-                            attendanceStmt.setString(2, lname);
-                            attendanceStmt.executeUpdate();
+
                             conn.close();
 
                             if (rowsDeleted > 0) {
@@ -160,11 +167,10 @@ public class Main {
                     return;
                 }
 
-                String fname = frame.table.getValueAt(selectedRow, 1).toString();
-                String lname = frame.table.getValueAt(selectedRow, 2).toString();
-                String fullName = fname + " " + lname;
-
                 try {
+                    int employeeId = Integer.parseInt(frame.table.getValueAt(selectedRow, 0).toString());
+                    String fname = frame.table.getValueAt(selectedRow, 1).toString();
+                    String lname = frame.table.getValueAt(selectedRow, 2).toString();
                     String position = frame.table.getValueAt(selectedRow, 3).toString();
                     String totalPresentDays = frame.table.getValueAt(selectedRow, 5).toString();
                     String monthRate = frame.table.getValueAt(selectedRow, 4).toString();
@@ -184,21 +190,14 @@ public class Main {
                     double dailyRate = monthlyRate / 22.0;
                     double gross = dailyRate * workTotal;
 
-
                     double sssEmployee = Math.min(gross, 35000) * 0.05;
-                    double sssEmployer = Math.min(gross, 35000) * 0.10;
                     double philhealthTotal = Math.min(gross * 0.05, 2500);
                     double philhealthEmployee = philhealthTotal / 2;
-                    double philhealthEmployer = philhealthTotal / 2;
                     double pagibigEmployee = Math.min(gross * 0.02, 200);
-                    double pagibigEmployer = Math.min(gross * 0.02, 200);
-
 
                     double totalContributions = sssEmployee + philhealthEmployee + pagibigEmployee;
 
-
                     double taxableIncome = gross - totalContributions;
-
 
                     double incomeTax;
                     if (taxableIncome <= 20833) {
@@ -215,27 +214,14 @@ public class Main {
                         incomeTax = 183541.80 + (taxableIncome - 666667) * 0.35;
                     }
 
-
                     double netPay = gross - totalContributions - incomeTax;
-
 
                     if (sssEmployee < 250 || philhealthEmployee < 250 || pagibigEmployee < 0) {
                         JOptionPane.showMessageDialog(null, "Compliance Warning: Contributions are below minimum thresholds!");
                     }
 
-
                     new payResults(fname, lname, position, gross, sssEmployee, philhealthEmployee, pagibigEmployee, incomeTax, netPay);
-                    dbConnection.insertPayroll(fname, lname, position, gross, sssEmployee, philhealthEmployee, pagibigEmployee, incomeTax, netPay, monthlyRate);
-
-
-                    java.time.LocalDate today = java.time.LocalDate.now();
-                    int dayOfMonth = today.getDayOfMonth();
-                    if (dayOfMonth >= 10) {
-                        JOptionPane.showMessageDialog(null, "Reminder: BIR and PhilHealth/Pag-IBIG remittances are due by the 10th of this month!");
-                    }
-                    if (dayOfMonth >= 15) {
-                        JOptionPane.showMessageDialog(null, "Reminder: SSS remittances are due by the 15th of this month!");
-                    }
+                    dbConnection.insertPayroll(employeeId, fname, lname, position, gross, sssEmployee, philhealthEmployee, pagibigEmployee, incomeTax, netPay, monthlyRate);
 
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Invalid number format in Monthly Rate or Total Present Days.");
@@ -249,6 +235,16 @@ public class Main {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = frame.table.getSelectedRow();
                 if (selectedRow != -1) {
+                    int employeeId = Integer.parseInt(frame.table.getValueAt(selectedRow, 0).toString());
+                    int selectedId = (int) frame.table.getValueAt(selectedRow, 0);
+                    if (selectedId == updatedEmployeeId[0]) {
+                        JOptionPane.showMessageDialog(frame,
+                                "This employee's record was recently updated.",
+                                "Update Notice",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        updatedEmployeeId[0] = -1;
+                    }
+                    
                     String fname = frame.table.getValueAt(selectedRow, 1).toString();
                     String lname = frame.table.getValueAt(selectedRow, 2).toString();
                     String fullName = " " + fname + " " + lname;
@@ -263,8 +259,7 @@ public class Main {
                                 int total = worked - absent;
                                 mp.totalWorked = total;
 
-                                dbConnection.markAttendance(fname, lname, worked, absent, total, frame);
-                                JOptionPane.showMessageDialog(null, "Attendance submitted or updated.");
+                                dbConnection.markAttendance(employeeId, fname, lname, worked, absent, total, frame);
                                 mp.dispose();
                             } catch (NumberFormatException ex) {
                                 JOptionPane.showMessageDialog(null, "Please enter valid numbers for worked and absent days.");
@@ -292,6 +287,7 @@ public class Main {
                 }
             }
         });
+
 
 
         frame.genResults.addActionListener(new ActionListener() {
