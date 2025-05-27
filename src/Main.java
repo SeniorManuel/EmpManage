@@ -332,75 +332,14 @@ public class Main {
                                                     183541.80 + (taxableIncome - 666667) * 0.35;
                     double netPay = gross - totalContributions - incomeTax;
 
-                    ReportGenerator generator = new ReportGenerator();
-                    String birReport = generator.generateBIRReport();
-                    String sssReport = generator.generateSSSReport();
-                    String philhealthReport = generator.generatePhilHealthReport();
-                    String pagibigReport = generator.generatePagIBIGReport();
-                    String birForm2316 = generator.generateBIRForm2316(fname, lname, position, gross, sssEmployee, philhealthEmployee, pagibigEmployee, incomeTax, netPay);
-                    String payslip = "Payslip for " + fname + " " + lname + "\n" +
-                            "Position: " + position + "\n" +
-                            "----------------------------------------\n" +
-                            String.format("%-20s ₱%10.2f\n", "Gross Pay:", gross) +
-                            "Deductions:\n" +
-                            String.format("%-20s ₱%10.2f\n", "  SSS:", sssEmployee) +
-                            String.format("%-20s ₱%10.2f\n", "  PhilHealth:", philhealthEmployee) +
-                            String.format("%-20s ₱%10.2f\n", "  Pag-IBIG:", pagibigEmployee) +
-                            String.format("%-20s ₱%10.2f\n", "  Withholding Tax:", incomeTax) +
-                            "----------------------------------------\n" +
-                            String.format("%-20s ₱%10.2f\n", "Net Pay:", netPay);
-
-
-                    String combinedMandatedReports = "========== Government Mandated Reports ==========\n\n" +
-                            "BIR Report:\n" + birReport + "\n\n" +
-                            "--------------------------------------------\n" +
-                            "SSS Report:\n" + sssReport + "\n\n" +
-                            "--------------------------------------------\n" +
-                            "PhilHealth Report:\n" + philhealthReport + "\n\n" +
-                            "--------------------------------------------\n" +
-                            "Pag-IBIG Report:\n" + pagibigReport + "\n" +
-                            "=============================================\n";
-
-
-                    JFrame mandatedFrame = new JFrame("Government Mandated Reports");
-                    JTextArea mandatedTextArea = new JTextArea(combinedMandatedReports);
-                    mandatedTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-                    mandatedTextArea.setEditable(false);
-                    JScrollPane mandatedScrollPane = new JScrollPane(mandatedTextArea);
-                    mandatedScrollPane.setPreferredSize(new Dimension(600, 500));
-                    mandatedFrame.add(mandatedScrollPane);
-                    mandatedFrame.pack();
-                    mandatedFrame.setLocation(100, 100);
-                    mandatedFrame.setVisible(true);
-
-
-                    JFrame birFormFrame = new JFrame("BIR Form 2316 - " + fname + " " + lname);
-                    JTextArea birFormTextArea = new JTextArea(birForm2316);
-                    birFormTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-                    birFormTextArea.setEditable(false);
-                    JScrollPane birFormScrollPane = new JScrollPane(birFormTextArea);
-                    birFormScrollPane.setPreferredSize(new Dimension(600, 400));
-                    birFormFrame.add(birFormScrollPane);
-                    birFormFrame.pack();
-                    birFormFrame.setLocation(750, 100);
-                    birFormFrame.setVisible(true);
-
-
-                    JFrame payslipFrame = new JFrame("Payslip - " + fname + " " + lname);
-                    JTextArea payslipTextArea = new JTextArea(payslip);
-                    payslipTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-                    payslipTextArea.setEditable(false);
-                    JScrollPane payslipScrollPane = new JScrollPane(payslipTextArea);
-                    payslipScrollPane.setPreferredSize(new Dimension(400, 300));
-                    payslipFrame.add(payslipScrollPane);
-                    payslipFrame.pack();
-                    payslipFrame.setLocation(750, 550);
-                    payslipFrame.setVisible(true);
+                    ReportSelectionUI reportSelectionUI = new ReportSelectionUI(fname, lname, position, gross, sssEmployee,
+                            philhealthEmployee, pagibigEmployee, incomeTax, netPay);
+                    reportSelectionUI.setVisible(true);
 
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(null, "Invalid number format in Monthly Rate or Total Present Days.");
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Error generating reports: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "Error preparing reports: " + ex.getMessage());
                 }
             }
         });
