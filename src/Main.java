@@ -268,10 +268,14 @@ public class Main {
                                         int worked = Integer.parseInt(mp.workField.getText());
                                         int absent = Integer.parseInt(mp.absentField.getText());
                                         int total = worked - absent;
-                                        mp.totalWorked = total;
+                                        if (total < 0) {
+                                            JOptionPane.showMessageDialog(mp, "Absent days cannot exceed worked days.");
+                                            return;
+                                        }
 
+                                        mp.totalWorked = total;
                                         dbConnection.markAttendance(employeeId, fname, lname, worked, absent, total, frame);
-                                        mp.dispose();
+                                        
                                     } catch (NumberFormatException ex) {
                                         JOptionPane.showMessageDialog(mp, "Please enter valid numbers for worked and absent days.");
                                     } catch (Exception ex) {
@@ -292,14 +296,6 @@ public class Main {
                                     } catch (NumberFormatException ex) {
                                         JOptionPane.showMessageDialog(mp, "Enter valid numbers for worked and absent days.");
                                     }
-                                }
-                            });
-
-                            mp.manageLeaves.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    System.out.println("Manage Leaves button clicked in markPresent");
-                                    mp.loadExistingLeaves();
                                 }
                             });
 
